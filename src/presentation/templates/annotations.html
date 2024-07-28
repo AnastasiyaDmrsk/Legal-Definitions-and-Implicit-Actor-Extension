@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Annotations</title>
+    <style>
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            width: 300px;
+            left: 0;
+            top: 0;
+            background: #3989c9;
+            color: #fff;
+            padding: 0.5em;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: 1s;
+            z-index: 1;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            top: 2em;
+        }
+
+        [data-highlight="1"].subject {
+            outline: 2px solid cyan;
+        }
+
+        [data-highlight="1"].target {
+            outline: 2px solid red;
+        }
+
+        .subject {
+            outline: 1px dashed cyan;
+        }
+
+        .target {
+            outline: 1px dashed red;
+        }
+    </style>
+
+
+</head>
+
+{{ body|safe }}
+
+<script type="text/javascript">
+    for (const hovered of document.querySelectorAll("[data-insertion-id]")) {
+        hovered.addEventListener("mouseover", () => {
+            for (const highlighted of document.querySelectorAll(`[data-insertion-id="${hovered.dataset.insertionId}"]`)) {
+                highlighted.dataset.highlight = "1";
+            }
+        });
+        hovered.addEventListener("mouseleave", () => {
+            for (const highlighted of document.querySelectorAll(`[data-insertion-id="${hovered.dataset.insertionId}"]`)) {
+                highlighted.dataset.highlight = "0";
+            }
+        });
+    }
+</script>
+</html>

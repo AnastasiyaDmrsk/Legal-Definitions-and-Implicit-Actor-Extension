@@ -84,7 +84,7 @@ pip install -r requirements.txt
 ```
 6. Run the server (locally)
 ```bash
-python manage.py runserver
+python main.py runserver
 ```
 Enjoy!
 ## Evaluation
