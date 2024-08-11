@@ -2,7 +2,8 @@ from typing import List, Set
 
 from spacy.tokens import Span
 
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
+from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
+    ImplicitSubjectType
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
 from src.implicit_actor.util import AUX_DEPS, has_explicit_subject, find_conj_head
 
@@ -17,7 +18,7 @@ class PassiveDetector(ImplicitSubjectDetector):
         :param blacklist: A list of predicates that should simply be ignored
         """
         if blacklist is None:
-            blacklist = {"based", "referred"}
+            blacklist = {"based", "referred", "related"}
         self._blacklist = blacklist
 
     def detect(self, span: Span) -> List[ImplicitSubjectDetection]:

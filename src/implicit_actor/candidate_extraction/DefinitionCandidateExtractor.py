@@ -1,3 +1,4 @@
+from functools import cache
 from typing import List
 
 from spacy.matcher import Matcher
@@ -8,12 +9,14 @@ from implicit_actor.candidate_extraction.CandidateExtractor import CandidateExtr
 
 class DefinitionCandidateExtractor(CandidateExtractor):
     def __init__(self):
+        # TODO spacy model will sometimes not separate the ‘ from the previous token
         self._pattern = [
             {"TEXT": "‘"},
             {"IS_ALPHA": True, "OP": "+"},
             {"TEXT": "’"},
         ]
 
+    @cache
     def extract(self, context: Doc) -> List[Token]:
         matcher = Matcher(context.vocab)
         matcher.add("DEFINITION", [self._pattern], greedy="FIRST")

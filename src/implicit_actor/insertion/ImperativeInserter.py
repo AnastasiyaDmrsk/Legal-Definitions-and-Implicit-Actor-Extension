@@ -1,8 +1,8 @@
 import uuid
-from typing import List
 
 from spacy.tokens import Token, Span
 
+from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
 from src.implicit_actor.insertion.pattern.inflect import conjugate
 from src.implicit_actor.insertion.pattern.inflect_global import PRESENT, SINGULAR
@@ -21,7 +21,7 @@ class ImperativeInserter(SpecializedInserter):
         """
         return subject_type == ImplicitSubjectType.IMPERATIVE
 
-    def insert(self, subj: Token, list_tokens: List[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Do the insert.
         """
@@ -49,7 +49,8 @@ class ImperativeInserter(SpecializedInserter):
                     SpecializedInserter._lower_case_first(
                         conjugated_verb), ctx) + insertion_point.whitespace_
             else:
-                list_tokens[insertion_point.i - span.start] = self.subject_mapper("you", ctx) + " " + self.target_mapper(
+                list_tokens[insertion_point.i - span.start] = self.subject_mapper("you",
+                                                                                  ctx) + " " + self.target_mapper(
                     conjugated_verb, ctx) + insertion_point.whitespace_
         else:
             if insertion_point.is_sent_start:
@@ -61,4 +62,5 @@ class ImperativeInserter(SpecializedInserter):
                 list_tokens[
                     insertion_point.i - span.start] = self.subject_mapper(
                     "you", ctx) + " " + insertion_point.text + insertion_point.whitespace_
-            list_tokens[target.token.i - span.start] = self.target_mapper(conjugated_verb, ctx) + target.token.whitespace_
+            list_tokens[target.token.i - span.start] = self.target_mapper(conjugated_verb,
+                                                                          ctx) + target.token.whitespace_

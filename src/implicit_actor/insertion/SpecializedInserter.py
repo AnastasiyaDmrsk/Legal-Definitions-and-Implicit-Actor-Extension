@@ -4,6 +4,7 @@ from typing import List, Callable, Optional
 
 from spacy.tokens import Token, Span
 
+from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
     ImplicitSubjectType
 from src.implicit_actor.util import get_noun_chunk
@@ -24,8 +25,8 @@ class SpecializedInserter(ABC):
 
     def __init__(self, subject_mapper: Optional[Callable[[str, InsertionContext], str]] = None,
                  target_mapper: Optional[Callable[[str, InsertionContext], str]] = None):
-        self.subject_mapper = subject_mapper or (lambda x: x)
-        self.target_mapper = target_mapper or (lambda x: x)
+        self.subject_mapper = subject_mapper or (lambda x, y: x)
+        self.target_mapper = target_mapper or (lambda x, y: x)
 
     @abstractmethod
     def accepts(self, subject_type: ImplicitSubjectType):
@@ -35,7 +36,7 @@ class SpecializedInserter(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def insert(self, subj: Token, list_tokens: List[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Inserts the subject into the list_tokens list.
 

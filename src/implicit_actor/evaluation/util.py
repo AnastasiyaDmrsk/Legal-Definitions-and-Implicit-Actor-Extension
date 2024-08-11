@@ -3,9 +3,9 @@ from typing import List
 
 import spacy
 
-from ImplicitSubjectPipeline import ImplicitSubjectPipeline
-from evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
-from evaluation.FitlerFailAccumulator import FilterFailAccumulator
+from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
+from implicit_actor.evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
+from implicit_actor.evaluation.FitlerFailAccumulator import FilterFailAccumulator
 from src.implicit_actor.util import load_gold_standard, dependency_trees_equal
 
 
@@ -108,3 +108,6 @@ def run_gs_eval(pipeline: ImplicitSubjectPipeline, start=None, end=None):
     with open("./log/res", "a") as f:
         f.write(
             f"{mask} {result_txt} | {[x.__class__.__name__ for x in pipeline._missing_subject_detectors]} | {[x.__class__.__name__ for x in pipeline._candidate_filters]}\n")
+
+
+

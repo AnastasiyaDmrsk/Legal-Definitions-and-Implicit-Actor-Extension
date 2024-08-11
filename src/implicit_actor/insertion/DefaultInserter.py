@@ -5,6 +5,7 @@ from typing import List
 from spacy import displacy
 from spacy.tokens import Token, Span
 
+from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
     ImplicitSubjectType
@@ -21,7 +22,7 @@ class DefaultInserter(SpecializedInserter):
         """
         return True
 
-    def insert(self, subj: Token, list_tokens: List[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Do the insert,
         """
@@ -49,6 +50,8 @@ class DefaultInserter(SpecializedInserter):
                 cleaned_subj.strip(), ctx) + insertion_point.whitespace_
         else:
             list_tokens[
-                insertion_point.i - span.start] = insertion_point.text + " by " + self.subject_mapper(
+                insertion_point.i - span.start] = self.target_mapper(insertion_point.text,
+                                                                     ctx) + " by " + self.subject_mapper(
                 cleaned_subj.strip(), ctx) + insertion_point.whitespace_
-            list_tokens[target.token.i - span.start] = self.target_mapper(target.token, ctx) + target.token.whitespace_
+            list_tokens[target.token.i - span.start] = self.target_mapper(target.token.text,
+                                                                          ctx) + target.token.whitespace_

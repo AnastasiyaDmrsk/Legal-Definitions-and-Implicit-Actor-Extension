@@ -3,6 +3,7 @@ from typing import List
 
 from spacy.tokens import Token, Span, MorphAnalysis
 
+from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
 from src.implicit_actor.insertion.pattern.inflect import conjugate
 from src.implicit_actor.insertion.pattern.inflect_global import PRESENT, SINGULAR, PLURAL
@@ -36,7 +37,7 @@ class GerundInserter(SpecializedInserter):
         c = conjugate(verb.lemma_, PRESENT, int(pers), map_num[num])
         return c
 
-    def insert(self, subj: Token, list_tokens: List[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Feel free to guess.
         """

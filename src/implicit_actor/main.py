@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 
 import evaluation
 from ImplicitSubjectPipeline import ImplicitSubjectPipeline
-from candidate_extraction.CandidateExtracorImpl import CandidateExtractorImpl
+from candidate_extraction.CandidateExtracorImpl import SubjectObjectCandidateExtractor
 from src.implicit_actor.candidate_filtering.CandidateTextOccurrenceFilter import CandidateTextOccurrenceFilter
 from src.implicit_actor.candidate_filtering.ChatGPTFilter import ChatGPTFilter
 from src.implicit_actor.candidate_filtering.DependentOfSameSentenceFilter import DependentOfSameSentenceFilter

@@ -107,6 +107,9 @@ def get_noun_chunk(token: Token) -> Span:
     """
     Gets the noun chunk the token is contained in.
     """
+    if not token.doc.has_annotation("DEP"):
+        return token.doc[token.i: token.i + 1]
+
     for chunk in token.doc.noun_chunks:
         if token in chunk:
             return chunk

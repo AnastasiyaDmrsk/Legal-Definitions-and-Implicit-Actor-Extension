@@ -1,14 +1,21 @@
-import itertools
+import csv
+import math
+from collections import defaultdict
+from typing import List
 
-import spacy
-from bs4 import BeautifulSoup
-from spacy import displacy
-
-from implicit_actor.insertion.DefaultInserter import DefaultInserter
+from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
+from implicit_actor.candidate_extraction.DefinitionCandidateExtractor import DefinitionCandidateExtractor
+from implicit_actor.candidate_filtering.CandidateTextOccurrenceFilter import CandidateTextOccurrenceFilter
+from implicit_actor.candidate_filtering.DependentOfSameSentenceFilter import DependentOfSameSentenceFilter
+from implicit_actor.candidate_filtering.ImperativeFilter import ImperativeFilter
+from implicit_actor.candidate_filtering.PartOfSpeechFilter import PartOfSpeechFilter
+from implicit_actor.candidate_filtering.PerplexityFilter import PerplexityFilter
+from implicit_actor.candidate_filtering.PreviouslyMentionedRelationFilter import PreviouslyMentionedRelationFilter
+from implicit_actor.evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
+from implicit_actor.evaluation.FitlerFailAccumulator import FilterFailAccumulator
+from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
 from implicit_actor.missing_subject_detection.GerundDetector import GerundDetector
 from implicit_actor.missing_subject_detection.ImperativeDetector import ImperativeDetector
-from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
-    ImplicitSubjectType
 from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
 from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDetector
 
@@ -32,87 +39,173 @@ from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDete
 # load_dotenv()
 
 
+def ctx_name_from_num(s: str) -> str:
+    if s.strip() in ["32017R1563", "32021R0444", "32019R0517"]:
+        return s
+    return "article5"
+
+
 def main():
     """
     This is just a file for messing around mostly with the dependency parser.
     Nothing of value can be found here.
     """
 
-    nlp = spacy.load("en_core_web_lg")
-
-    txt = """The contract shall specify the rules, policies and procedures for the provision of services by the Registry and the conditions according to which the Commission is to supervise the organisation, administration and management of the .eu TLD by the Registry."""
-
-    doc = nlp(txt)
-
-    for tok in doc:
-        print(tok, tok.lemma_)
-
-
-
-    # print(PassiveDetector().detect(doc[:]))
-    # print(GerundDetector().detect(doc[:]))
-    # print(NominalizedGerundWordlistDetector().detect(doc[:]))
-    # print(ImperativeDetector().detect(doc[:]))
-
-    # c = DefinitionCandidateExtractor().extract(doc)
-    # print(c)
-
     #
+    # nlp = spacy.load("en_core_web_trf")
+    # with open(f"./data/gold_standard/implicit/32019R0517.txt", "r",
+    #           encoding="utf-8") as art_4_file:
+    #     art_4 = art_4_file.read()
     #
-    # matcher = Matcher(nlp.vocab)
+    # pipeline = ImplicitSubjectPipeline(
+    #     missing_subject_detectors=[
+    #         PassiveDetector(),
+    #         ImperativeDetector(),
+    #         GerundDetector(),
+    #         NominalizedGerundWordlistDetector(),
+    #         # NounVerbStemDetector(),
+    #     ],
+    #     candidate_filters=[
+    #         SynsetFilter(),
+    #     ],
+    #     missing_subject_inserter=definition_candidate_inserter,
+    #     candidate_extractor=DefinitionCandidateExtractor(),
+    #     verbose=True
+    # )
     #
-    # pattern = [
-    #     {"TEXT": "‘"},
-    #     {"IS_ALPHA": True, "OP": "+"},
-    #     {"TEXT": "’"},
-    # ]
+    # pipeline.apply(art_4)
     #
-    # # Add the pattern to the matcher
-    # matcher.add("DEFINITION", [pattern], greedy="FIRST")
-    #
-    # # Apply the matcher to the doc
-    # matches = matcher(doc)
-    #
-    # # Extract and print the matched spans
-    # for match_id, start, end in matches:
-    #     print(start, end)
-    #     span = doc[start:end]
-    #     print(span.text)
-    #     print("---")
+    # return
 
-    # print("-" * 10)
-    # for tok in doc:
-    #     print(tok.text, tok)
-    #     print("-")
+    definition_candidate_inserter = ImplicitSubjectInserterImpl.for_definition_candidates()
 
-    # Omitting the verb from the sentence is also possible. Once omitted, it is no longer present.
+    # TODO show second most likely candidate on hover over candidate
+    pipeline = ImplicitSubjectPipeline(
+        missing_subject_detectors=[
+            PassiveDetector(),
+            ImperativeDetector(),
+            GerundDetector(),
+            NominalizedGerundWordlistDetector(),
+            # NounVerbStemDetector(),
+        ],
+        candidate_filters=[
+            ImperativeFilter(),
+            PartOfSpeechFilter(),
+            DependentOfSameSentenceFilter(),
+            # ChatGPTFilter(),
+            # TODO check if we can only compare target verb
+            # SimilarityFilter(use_context=False, model="en_use_lg"),
+            # TODO better tuning for the perplexity buffer (rho) value
+            PerplexityFilter(max_returned=100000, missing_subject_inserter=definition_candidate_inserter,
+                             perplexity_buffer=1.1),
+            # ProximityFilter(),
+            # TODO check if this is broken with new candidate extractor
+            # TODO make this focus on key verbs (whatever that means) and give wordnet a try
+            PreviouslyMentionedRelationFilter(),
+            # TODO This is broken
+            CandidateTextOccurrenceFilter(),
+        ],
+        missing_subject_inserter=definition_candidate_inserter,
+        # TODO filter definitions on only relevant verb in definition
+        candidate_extractor=DefinitionCandidateExtractor(),  # SubjectObjectCandidateExtractor(),
+        verbose=False
+    )
 
-    # txt = "That period shall be extended by two months at the initiative of the European Parliament or of the Council."
+    n_correct_actor = 0
+    n_inspected_actor = 0
 
-    # doc = nlp(txt)
+    detection_accumulator = ClassificationStatisticsAccumulator()
+    filter_stats_accumulator = FilterFailAccumulator()
 
-    # print(CandidateExtractorImpl().extract(doc))
+    with open("./data/gold_standard/implicit/gold_standard.csv", 'r', encoding="utf-8") as file:
+        reader = csv.reader(file, delimiter=";")
+        next(reader, None)
 
-    # print(doc.ents)
+        for _ in range(6):
+            next(reader, None)
 
-    # stemmer = PorterStemmer()
-    #
-    # print(stemmer.stem("eating"))
-    #
-    # similarity_nlp = spacy.load("en_core_web_lg")
-    # t1 = "The setup of your account starts with Blizzard checking whether you have a battle.net account."
-    # t2 = "The setup of your account starts with you checking whether you have a battle.net account."
-    #
-    # print(similarity_nlp(t1).similarity(similarity_nlp(t2)))
+        # Now, this could be done more efficiently, but that is not how we roll :)
+        grouped_by_sentence = defaultdict(list)
+        for line in reader:
+            grouped_by_sentence[line[1]].append(line)
 
-    # for tok in doc:
-    #     print(tok.text, tok.dep_, tok.tag_, tok.lemma_, tok.pos_)
+        for sentence, lines in grouped_by_sentence.items():
+            # We assume that if the sentences are the same, the source is also the same
+            source = lines[0][0]
+            with open(f"./data/gold_standard/implicit/{source}.txt", "r", encoding="utf-8") as ctx_file:
+                ctx = ctx_file.read()
+            additional_ctx = ""
+            if source not in ["32017R1563", "32021R0444", "32019R0517"]:
+                with open(f"./data/gold_standard/implicit/article4.txt", "r",
+                          encoding="utf-8") as additional_ctx_file:
+                    additional_ctx = additional_ctx_file.read()
+            act_enhanced = pipeline.apply(sentence, ctx + "\n\n\n" + additional_ctx)
 
-    # print(lexeme("be"))
+            # target, actor, type (y/n/i)
+            expected_detections = list(map(lambda x: x[3].split(" ")[0], filter(lambda x: x[2] != "n", lines)))
+            provided_detections = list(map(lambda x: x.token.text, pipeline.last_detections()))
 
-    displacy.serve(doc, style="dep")
-    # for source, inp, gs, impl_subjects, targets in list(load_gold_standard())[38:]:
-    #     print(gs)
+            detection_accumulator.tp += len(intersect_lists(expected_detections, provided_detections))
+            detection_accumulator.fp += len(subtract_lists(provided_detections, expected_detections))
+            detection_accumulator.fn += len(subtract_lists(expected_detections, provided_detections))
+
+            num_y = sum(map(lambda l: 1 if l[2] == "y" else 0, lines))
+
+            # Note, we know that every target always has the same actor per sentence in the GS thus some simplifications
+            for provided_target, provided_actor in pipeline.last_selected_candidate_with_target():
+                for (_, _, _, actual_target, _, actual_actor, *_) in lines:
+                    if provided_target.token.text in actual_target and provided_actor.text in actual_actor:
+                        n_correct_actor += 1
+                        print("Found")
+                        break
+
+                else:
+                    print("None found")
+
+            n_inspected_actor += num_y
+
+
+            print(pipeline.last_selected_candidate_with_target())
+            print(list(map(lambda x: (x[3], x[5]), lines)))
+
+            # print(pipeline.last_selected_candidates())
+            print(f"precision {detection_accumulator.precision()}, recall {detection_accumulator.recall()}")
+            # Note, this is a "conditional probability" stat
+            print(
+                f"correct actors {n_correct_actor} / {n_inspected_actor} ({n_correct_actor / n_inspected_actor if n_inspected_actor > 0 else math.nan})")
+            print("---")
+
+            # for (source, original_sentence, _, gs_verb, _, gs_subj, gs_enhanced, *_) in lines:
+            #     ctx = ctx_file.read()
+            #
+            #     # act_verbs = pipeline.last_detections()
+            #     # act_subjs = pipeline.last_selected_candidates()
+            #
+            #     print(pipeline.last_filter_log())
+
+
+def subtract_lists(list1: List[str], list2: List[str]):
+    """
+    Checks the difference between two lists
+    """
+    result = list1.copy()
+    for element in list2:
+        if element in result:
+            result.remove(element)
+    return result
+
+
+def intersect_lists(list1, list2):
+    """
+    Checks the intersection between two lists
+    """
+    result = []
+    list2_copy = list2.copy()
+    for element in list1:
+        if element in list2_copy:
+            result.append(element)
+            list2_copy.remove(element)
+    return result
 
 
 if __name__ == "__main__":

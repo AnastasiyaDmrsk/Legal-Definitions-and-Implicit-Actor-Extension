@@ -1,23 +1,23 @@
 import re
-from collections import Counter, defaultdict
+from collections import Counter
+from collections import defaultdict
 from typing import Optional, Set
 
 import requests
 import unicodedata
 from bs4 import BeautifulSoup
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from explicit_information.definitions import find_definitions, get_annotations, \
-    check_more_definitions_in_text, any_definition_in_text, get_dictionary
+    any_definition_in_text, get_dictionary
 from explicit_information.relations import noun_relations, build_tree, get_hyponymy, get_meronymy, get_synonymy
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
 from implicit_actor.implicit_subject_pipeline_factory import create_implicit_subject_pipeline
 from implicit_actor.util import get_noun_chunk
 from presentation.forms import FormCELEX, FormDefinition
 from presentation.graph import create_bar_chart, construct_default_graph, construct_relation_graph
-from collections import Counter
 
 site = ""
 celex = ""
@@ -31,6 +31,7 @@ done_date = ""
 regulation_body = ""
 frequency_articles = {}
 sentences_set = {}
+sentences_with_implicit_actors: Set[str] = set()
 articles_set = {}
 articles_set_and_frequency = {}
 implicit_actor_counter = Counter()
@@ -148,7 +149,8 @@ def extract_text(url):
             old_text = paragraph.get_text().replace("\u00A0", " ")
             new_text = pipeline.apply(old_text, context + "\n\n\n\n" + old_text)  # + "\n\n\n\n" + old_text
             for c in pipeline.last_selected_candidates():
-                implicit_actor_counter[c._.noun_chunk] += 1
+                noun_chunk = get_noun_chunk(c)
+                implicit_actor_counter[noun_chunk.text] += 1
             new_html = BeautifulSoup(new_text, 'html.parser')
             paragraph.clear()
             paragraph.append(new_html)
@@ -203,7 +205,6 @@ def add_annotations_to_the_regulation(soup):
         definitions_in_sentence: Set[str] = set()
 
         # create copy as we will change the elements during iteration
-        # TODO don't iterate the strings ofc, you need the spans as well
         for element in list(sentence.strings):
             text = element.text
 

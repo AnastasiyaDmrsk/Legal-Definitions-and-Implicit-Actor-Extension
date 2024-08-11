@@ -5,17 +5,13 @@ from typing import List, Optional, Tuple
 import spacy
 from spacy.tokens import Token, Span
 
-from implicit_actor.util import get_noun_chunk
-from src.implicit_actor.candidate_extraction.CandidateExtracorImpl import CandidateExtractorImpl
+from src.implicit_actor.candidate_extraction.CandidateExtracorImpl import SubjectObjectCandidateExtractor
 from src.implicit_actor.candidate_extraction.CandidateExtractor import CandidateExtractor
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
 from src.implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
-
-if not Token.has_extension("noun_chunk"):
-    Token.set_extension("noun_chunk", default=None)
 
 
 class ImplicitSubjectPipeline:
@@ -42,12 +38,13 @@ class ImplicitSubjectPipeline:
         """
         self._candidate_filters = candidate_filters
         self._missing_subject_detectors = missing_subject_detectors
-        self._candidate_extractor = candidate_extractor or CandidateExtractorImpl()
+        self._candidate_extractor = candidate_extractor or SubjectObjectCandidateExtractor()
         self._missing_subject_inserter = missing_subject_inserter or ImplicitSubjectInserterImpl()
         self._verbose = verbose
         self._nlp = spacy.load("en_core_web_sm" if fast else "en_core_web_trf")
         self._last_detections = None
         self._last_selected_candidates: Optional[List[Token]] = None
+        self._last_selected_candidate_with_target: Optional[List[Tuple[ImplicitSubjectDetection, Token]]] = None
         self._last_log = None
 
     def last_selected_candidates(self) -> Optional[List[Token]]:
@@ -55,6 +52,9 @@ class ImplicitSubjectPipeline:
         Returns the last selected candidates. Useful for evaluation.
         """
         return self._last_selected_candidates
+
+    def last_selected_candidate_with_target(self) -> Optional[List[Tuple[ImplicitSubjectDetection, Token]]]:
+        return self._last_selected_candidate_with_target
 
     def last_detections(self) -> List[ImplicitSubjectDetection]:
         """
@@ -112,7 +112,7 @@ class ImplicitSubjectPipeline:
         # Generally we assume the inspected text to be part of the context. If we can use a single doc
         # which is necessary for some filters (ProximityFilter) to work correctly. Otherwise, we create two docs.
         if inspected_text not in context:
-            warnings.warn(f"Could not find inspected text in context. Using separate docs. ('{inspected_text}')")
+            # warnings.warn(f"Could not find inspected text in context. Using separate docs. ('{inspected_text}')")
             inspected_text_span = self._nlp(inspected_text)[:]
             context_doc = self._nlp(context)
         else:
@@ -148,14 +148,12 @@ class ImplicitSubjectPipeline:
         for t, l in filter_res:
             log.append(l)
             subjects_for_insertion.append(t)
-            # get_noun_chunk does not seem to work after leaving the scope of this function so we
-            # provide it from the inside (probably because the doc goes out of scope).
-            t._.noun_chunk = get_noun_chunk(t)
 
         self._last_log = list(zip(targets, log))
 
         self._debug("Picked the following subjects for insertion:\n", *zip(targets, subjects_for_insertion), sep="")
         self._last_selected_candidates = subjects_for_insertion
+        self._last_selected_candidate_with_target = list(zip(targets, subjects_for_insertion))
 
         resolved = self._missing_subject_inserter.insert(inspected_text_span, targets, subjects_for_insertion)
 

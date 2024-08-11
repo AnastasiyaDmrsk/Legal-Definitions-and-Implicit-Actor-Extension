@@ -33,7 +33,7 @@ class ClassificationStatisticsAccumulator:
         """
         Returns the current recall.
         """
-        if self.tp + self.fp == 0:
+        if self.tp + self.fn == 0:
             return math.nan
         return self.tp / (self.tp + self.fn)
 

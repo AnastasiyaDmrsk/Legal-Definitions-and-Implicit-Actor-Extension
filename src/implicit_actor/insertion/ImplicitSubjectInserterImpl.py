@@ -1,7 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from spacy.tokens import Span, Token
 
+from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.DefaultInserter import DefaultInserter
 from src.implicit_actor.insertion.GerundInserter import GerundInserter
 from src.implicit_actor.insertion.ImperativeInserter import ImperativeInserter
@@ -21,6 +22,18 @@ class ImplicitSubjectInserterImpl(ImplicitSubjectInserter):
             ImperativeInserter(),
             DefaultInserter()
         ]
+        self._last_insertion_spans: List[Tuple[int, int]] = []
+
+    @staticmethod
+    def for_definition_candidates() -> "ImplicitSubjectInserterImpl":
+        """
+        Factory for an inserter specialized in inserting candidates taken from EU regulatory definitions.
+        """
+        return ImplicitSubjectInserterImpl([
+            GerundInserter(_add_the),
+            ImperativeInserter(_add_the),
+            DefaultInserter(_add_the),
+        ])
 
     def insert(self, span: Span, targets: List[ImplicitSubjectDetection], subjects: List[Token]) -> str:
         """
@@ -30,7 +43,7 @@ class ImplicitSubjectInserterImpl(ImplicitSubjectInserter):
         if len(subjects) != len(targets):
             raise ValueError("subjects and targets must have the same length")
 
-        list_tokens = list(token.text_with_ws for token in span)
+        list_tokens = TokenList(list(token.text_with_ws for token in span))
 
         for target, subj in zip(targets, subjects):
             inserter = next((x for x in self._sub_inserters if x.accepts(target.type)), None)
@@ -38,5 +51,18 @@ class ImplicitSubjectInserterImpl(ImplicitSubjectInserter):
                 raise Exception(f"Could not find subinserter capable of handling {target.type}")
             inserter.insert(subj, list_tokens, target, span)
 
-        resolved_text = "".join(list_tokens)
+        resolved_text, spans = list_tokens.join()
+        self._last_insertion_spans = spans
         return resolved_text
+
+    def last_insertion_spans(self) -> List[Tuple[int, int]]:
+        """
+        The positions of insertions
+        """
+        return self._last_insertion_spans
+
+def _add_the(x: str, *_):
+    """
+    Adds a 'the'.
+    """
+    return f"the {x}"
