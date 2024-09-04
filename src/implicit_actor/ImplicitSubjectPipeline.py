@@ -1,10 +1,12 @@
 import warnings
 from functools import reduce
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 
 import spacy
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_filtering.FilterContext import FilterContext
+from implicit_actor.util import get_noun_chunk
 from src.implicit_actor.candidate_extraction.CandidateExtracorImpl import SubjectObjectCandidateExtractor
 from src.implicit_actor.candidate_extraction.CandidateExtractor import CandidateExtractor
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
@@ -46,6 +48,18 @@ class ImplicitSubjectPipeline:
         self._last_selected_candidates: Optional[List[Token]] = None
         self._last_selected_candidate_with_target: Optional[List[Tuple[ImplicitSubjectDetection, Token]]] = None
         self._last_log = None
+        self._last_initial_candidates: List[Token] = []
+        self._last_candidates_before_tie_break: Dict[str, List[str]] = dict()
+        self._last_active_filters: List[str] = list()
+
+    def last_active_filters(self) -> List[str]:
+        return self._last_active_filters
+
+    def last_initial_candidates(self) -> List[Token]:
+        return self._last_initial_candidates
+
+    def last_selected_candidates_before_tie_break(self) -> Dict[str, List[str]]:
+        return self._last_candidates_before_tie_break
 
     def last_selected_candidates(self) -> Optional[List[Token]]:
         """
@@ -83,7 +97,12 @@ class ImplicitSubjectPipeline:
                 self._debug(f"Short circuiting  {f.__class__.__name__} with {acc}.")
                 return acc
 
-            intermediate_result = f.filter(target, acc, context)
+            intermediate_result = f.filter(target, acc, FilterContext(
+                context=context,
+                initial_candidates=self._last_initial_candidates
+            ))
+            if len(intermediate_result) != len(acc):
+                self._last_active_filters.append(f.__class__.__name__)
             self._debug(
                 f"Applied {f.__class__.__name__}, filtered {100 - 100 * len(intermediate_result) / prev_len :.2f}% of "
                 f"candidates and returned {intermediate_result}")
@@ -100,6 +119,9 @@ class ImplicitSubjectPipeline:
             self._debug(f"Searching for candidate for target {target}")
             log, res = reduce(_logged_apply, self._candidate_filters, ([(None, candidates)], candidates))
             tok = res[0] if res else candidates[0]
+            self._last_candidates_before_tie_break[target.token.text] = list(
+                map(lambda x: get_noun_chunk(x).text, res)
+            )
             yield tok, log
 
     def apply(self, inspected_text: str, context: Optional[str] = None) -> str:
@@ -108,6 +130,11 @@ class ImplicitSubjectPipeline:
         """
         if not context:
             context = inspected_text
+
+        self._last_candidates_before_tie_break = dict()
+        self._last_selected_candidates = []
+        self._last_active_filters = []
+        self._last_initial_candidates = []
 
         # Generally we assume the inspected text to be part of the context. If we can use a single doc
         # which is necessary for some filters (ProximityFilter) to work correctly. Otherwise, we create two docs.
@@ -121,6 +148,10 @@ class ImplicitSubjectPipeline:
             inspected_text_span = context_doc.char_span(ind, ind + len(inspected_text))
             if str(inspected_text_span) != inspected_text:
                 warnings.warn("Could not extract the inspected text from the context. Will skip inspection")
+                self._last_detections = dict()
+                self._last_log = []
+                self._last_selected_candidates = []
+                self._last_selected_candidate_with_target = []
                 return inspected_text
             # assert inspected_text == str(inspected_text_span), "Could not extract the inspected text from the context."
 
@@ -138,6 +169,9 @@ class ImplicitSubjectPipeline:
         self._debug("-----")
 
         candidates = self._candidate_extractor.extract(context_doc)
+        self._last_initial_candidates = list(
+            candidates
+        )
 
         self._debug("Extracted the following candidates:\n", candidates, sep="")
         self._debug("-----")

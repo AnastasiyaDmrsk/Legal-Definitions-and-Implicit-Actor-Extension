@@ -1,7 +1,12 @@
 import csv
 import math
+from cProfile import Profile
 from collections import defaultdict
+from pstats import Stats, SortKey
 from typing import List
+
+import spacy
+from spacy import displacy
 
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
 from implicit_actor.candidate_extraction.DefinitionCandidateExtractor import DefinitionCandidateExtractor
@@ -11,14 +16,16 @@ from implicit_actor.candidate_filtering.ImperativeFilter import ImperativeFilter
 from implicit_actor.candidate_filtering.PartOfSpeechFilter import PartOfSpeechFilter
 from implicit_actor.candidate_filtering.PerplexityFilter import PerplexityFilter
 from implicit_actor.candidate_filtering.PreviouslyMentionedRelationFilter import PreviouslyMentionedRelationFilter
+from implicit_actor.candidate_filtering.SynsetFilter import SynsetFilter
 from implicit_actor.evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
 from implicit_actor.evaluation.FitlerFailAccumulator import FilterFailAccumulator
+from implicit_actor.evaluation.util import run_evaluation_2
 from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
 from implicit_actor.missing_subject_detection.GerundDetector import GerundDetector
 from implicit_actor.missing_subject_detection.ImperativeDetector import ImperativeDetector
 from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
+from implicit_actor.missing_subject_detection.NounVerbStemDetector import NounVerbStemDetector
 from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDetector
-
 
 # from spacy import displacy
 
@@ -36,6 +43,11 @@ from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDete
 # from src.implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
 
 
+from nltk.corpus import wordnet as wn
+
+from implicit_actor.util import get_noun_chunk
+
+
 # load_dotenv()
 
 
@@ -51,161 +63,74 @@ def main():
     Nothing of value can be found here.
     """
 
+    # lexnames = [x.lexname() for x in wn.synsets("entity", pos=wn.NOUN)]
+
+    # print(lexnames)
+
+    # with Profile() as profile:
+
+    # lexnames = [x.lexname() for x in wn.synsets("data", pos=wn.NOUN)]
+    # print(lexnames)
     #
-    # nlp = spacy.load("en_core_web_trf")
-    # with open(f"./data/gold_standard/implicit/32019R0517.txt", "r",
-    #           encoding="utf-8") as art_4_file:
-    #     art_4 = art_4_file.read()
+
+    # nlp = spacy.load('en_core_web_trf')
+    # with open(f"./data/gold_standard/implicit/article4.txt", "r",
+    #           encoding="utf-8") as additional_ctx_file:
+    #     art4 = additional_ctx_file.read()
+    # doc = nlp(art4)
     #
-    # pipeline = ImplicitSubjectPipeline(
-    #     missing_subject_detectors=[
-    #         PassiveDetector(),
-    #         ImperativeDetector(),
-    #         GerundDetector(),
-    #         NominalizedGerundWordlistDetector(),
-    #         # NounVerbStemDetector(),
-    #     ],
-    #     candidate_filters=[
-    #         SynsetFilter(),
-    #     ],
-    #     missing_subject_inserter=definition_candidate_inserter,
-    #     candidate_extractor=DefinitionCandidateExtractor(),
-    #     verbose=True
+    # print(
+    #     [get_noun_chunk(t) for t in doc if t.dep_ in {"relcl", "acl"} and t.pos_ == "VERB"]
     # )
+
+    # displacy.serve(
+    #     doc, style="dep"
+    # )
+
+    # doc = nlp(
+    #     "‘processing’ means any operation or set of operations which is performed on personal data or on sets of personal data, whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, restriction, erasure or destruction;")
     #
-    # pipeline.apply(art_4)
+    # print(
+    #     NounVerbStemDetector().detect(doc[:])
+    # )
+
+    """
+    precision 0.23448275862068965, recall 0.7692307692307693
+    correct actors 53 / 144 (0.3680555555555556)
+    correct top 5 actors 70 / 144 (0.4861111111111111)
+    """
+
+    run_evaluation_2()
+    # Stats(profile).sort_stats(SortKey.CUMULATIVE).print_stats()
+
+    # nlp = spacy.load(
+    #     "en_core_web_trf"
+    # )
+    # #
+    # doc = nlp(
+    #     """
+    #     For the purposes of this Regulation: (1) ‘personal data’ means any information relating to an identified or identifiable natural person (‘data subject’); an identifiable natural person is one who can be identified, directly or indirectly, in particular by reference to an identifier such as a name, an identification number, location data, an online identifier or to one or more factors specific to the physical, physiological, genetic, mental, economic, cultural or social identity of that natural person; (2) ‘processing’ means any operation or set of operations which is performed on personal data or on sets of personal data, whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, restriction, erasure or destruction; (3) ‘restriction of processing’ means the marking of stored personal data with the aim of limiting their processing in the future; (4) ‘profiling’ means any form of automated processing of personal data consisting of the use of personal data to evaluate certain personal aspects relating to a natural person, in particular to analyse or predict aspects concerning that natural person's performance at work, economic situation, health, personal preferences, interests, reliability, behaviour, location or movements; (5) ‘pseudonymisation’ means the processing of personal data in such a manner that the personal data can no longer be attributed to a specific data subject without the use of additional information, provided that such additional information is kept separately and is subject to technical and organisational measures to ensure that the personal data are not attributed to an identified or identifiable natural person; (6) ‘filing system’ means any structured set of personal data which are accessible according to specific criteria, whether centralised, decentralised or dispersed on a functional or geographical basis; (7) ‘controller’ means the natural or legal person, public authority, agency or other body which, alone or jointly with others, determines the purposes and means of the processing of personal data; where the purposes and means of such processing are determined by Union or Member State law, the controller or the specific criteria for its nomination may be provided for by Union or Member State law; (8) ‘processor’ means a natural or legal person, public authority, agency or other body which processes personal data on behalf of the controller;
+    #     """)
+
+    # displacy.serve(
+    #     doc, style="dep"
+    # )
+
+    """
+    precision 0.228, recall 0.7737556561085973
+    correct actors 11 / 144 (0.0763888888888889)
+    correct top 5 actors 47 / 144 (0.3263888888888889)
+
+    """
+
+    # nlp = spacy.load("en_core_web_lg")
+    # with open("./data/gold_standard/implicit/gold_standard.csv", 'r', encoding="utf-8") as file:
+    #     reader = csv.reader(file, delimiter=";")
+    #     next(reader, None)
     #
-    # return
-
-    definition_candidate_inserter = ImplicitSubjectInserterImpl.for_definition_candidates()
-
-    # TODO show second most likely candidate on hover over candidate
-    pipeline = ImplicitSubjectPipeline(
-        missing_subject_detectors=[
-            PassiveDetector(),
-            ImperativeDetector(),
-            GerundDetector(),
-            NominalizedGerundWordlistDetector(),
-            # NounVerbStemDetector(),
-        ],
-        candidate_filters=[
-            ImperativeFilter(),
-            PartOfSpeechFilter(),
-            DependentOfSameSentenceFilter(),
-            # ChatGPTFilter(),
-            # TODO check if we can only compare target verb
-            # SimilarityFilter(use_context=False, model="en_use_lg"),
-            # TODO better tuning for the perplexity buffer (rho) value
-            PerplexityFilter(max_returned=100000, missing_subject_inserter=definition_candidate_inserter,
-                             perplexity_buffer=1.1),
-            # ProximityFilter(),
-            # TODO check if this is broken with new candidate extractor
-            # TODO make this focus on key verbs (whatever that means) and give wordnet a try
-            PreviouslyMentionedRelationFilter(),
-            # TODO This is broken
-            CandidateTextOccurrenceFilter(),
-        ],
-        missing_subject_inserter=definition_candidate_inserter,
-        # TODO filter definitions on only relevant verb in definition
-        candidate_extractor=DefinitionCandidateExtractor(),  # SubjectObjectCandidateExtractor(),
-        verbose=False
-    )
-
-    n_correct_actor = 0
-    n_inspected_actor = 0
-
-    detection_accumulator = ClassificationStatisticsAccumulator()
-    filter_stats_accumulator = FilterFailAccumulator()
-
-    with open("./data/gold_standard/implicit/gold_standard.csv", 'r', encoding="utf-8") as file:
-        reader = csv.reader(file, delimiter=";")
-        next(reader, None)
-
-        for _ in range(6):
-            next(reader, None)
-
-        # Now, this could be done more efficiently, but that is not how we roll :)
-        grouped_by_sentence = defaultdict(list)
-        for line in reader:
-            grouped_by_sentence[line[1]].append(line)
-
-        for sentence, lines in grouped_by_sentence.items():
-            # We assume that if the sentences are the same, the source is also the same
-            source = lines[0][0]
-            with open(f"./data/gold_standard/implicit/{source}.txt", "r", encoding="utf-8") as ctx_file:
-                ctx = ctx_file.read()
-            additional_ctx = ""
-            if source not in ["32017R1563", "32021R0444", "32019R0517"]:
-                with open(f"./data/gold_standard/implicit/article4.txt", "r",
-                          encoding="utf-8") as additional_ctx_file:
-                    additional_ctx = additional_ctx_file.read()
-            act_enhanced = pipeline.apply(sentence, ctx + "\n\n\n" + additional_ctx)
-
-            # target, actor, type (y/n/i)
-            expected_detections = list(map(lambda x: x[3].split(" ")[0], filter(lambda x: x[2] != "n", lines)))
-            provided_detections = list(map(lambda x: x.token.text, pipeline.last_detections()))
-
-            detection_accumulator.tp += len(intersect_lists(expected_detections, provided_detections))
-            detection_accumulator.fp += len(subtract_lists(provided_detections, expected_detections))
-            detection_accumulator.fn += len(subtract_lists(expected_detections, provided_detections))
-
-            num_y = sum(map(lambda l: 1 if l[2] == "y" else 0, lines))
-
-            # Note, we know that every target always has the same actor per sentence in the GS thus some simplifications
-            for provided_target, provided_actor in pipeline.last_selected_candidate_with_target():
-                for (_, _, _, actual_target, _, actual_actor, *_) in lines:
-                    if provided_target.token.text in actual_target and provided_actor.text in actual_actor:
-                        n_correct_actor += 1
-                        print("Found")
-                        break
-
-                else:
-                    print("None found")
-
-            n_inspected_actor += num_y
-
-
-            print(pipeline.last_selected_candidate_with_target())
-            print(list(map(lambda x: (x[3], x[5]), lines)))
-
-            # print(pipeline.last_selected_candidates())
-            print(f"precision {detection_accumulator.precision()}, recall {detection_accumulator.recall()}")
-            # Note, this is a "conditional probability" stat
-            print(
-                f"correct actors {n_correct_actor} / {n_inspected_actor} ({n_correct_actor / n_inspected_actor if n_inspected_actor > 0 else math.nan})")
-            print("---")
-
-            # for (source, original_sentence, _, gs_verb, _, gs_subj, gs_enhanced, *_) in lines:
-            #     ctx = ctx_file.read()
-            #
-            #     # act_verbs = pipeline.last_detections()
-            #     # act_subjs = pipeline.last_selected_candidates()
-            #
-            #     print(pipeline.last_filter_log())
-
-
-def subtract_lists(list1: List[str], list2: List[str]):
-    """
-    Checks the difference between two lists
-    """
-    result = list1.copy()
-    for element in list2:
-        if element in result:
-            result.remove(element)
-    return result
-
-
-def intersect_lists(list1, list2):
-    """
-    Checks the intersection between two lists
-    """
-    result = []
-    list2_copy = list2.copy()
-    for element in list1:
-        if element in list2_copy:
-            result.append(element)
-            list2_copy.remove(element)
-    return result
+    #     for _, sent, *_ in reader:
+    #         doc = nlp(sent)
+    #         print(PassiveDetector().detect(doc[:]))
 
 
 if __name__ == "__main__":

@@ -4,8 +4,9 @@ from typing import List
 
 import openai
 from openai import OpenAI
-from spacy.tokens import Token, Span
+from spacy.tokens import Token
 
+from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.insertion import ImplicitSubjectInserter
 from src.implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
@@ -19,7 +20,7 @@ class ChatGPTFilter(CandidateFilter):
         self._client = OpenAI()
         self._model = model
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], context: Span) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], ctx: FilterContext) -> List[Token]:
         """
         Asks ChatGPT to pick the best candidate.
         """
@@ -36,7 +37,7 @@ class ChatGPTFilter(CandidateFilter):
         prompt = f"""
 Given the following context:
 
-{str(context)}
+{str(ctx.context)}
 
 Which of the following sentences is most fitting? Provide only the sentence.
 

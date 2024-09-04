@@ -3,6 +3,7 @@ from typing import List
 from spacy.lang.en import English
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectType, ImplicitSubjectDetection
 
@@ -12,7 +13,7 @@ class ImperativeFilter(CandidateFilter):
     Resolves the filtering if the target is an imperative by selecting `you`.
     """
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], context: Span) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
         """
         Selects you if the target is an imperative.
         """

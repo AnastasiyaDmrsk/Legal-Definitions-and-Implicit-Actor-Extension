@@ -3,6 +3,7 @@ from typing import List
 from nltk.stem import PorterStemmer
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
 from src.implicit_actor.util import ACTIVE_VOICE_SUBJ_DEPS, search_for_head
@@ -29,7 +30,7 @@ class PreviouslyMentionedRelationFilter(CandidateFilter):
     def __init__(self):
         self._stemmer = PorterStemmer()
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], context: Span) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
         """
         Retain only candidates that are the subject of predicates with the same stem as the step of the target token.
         """

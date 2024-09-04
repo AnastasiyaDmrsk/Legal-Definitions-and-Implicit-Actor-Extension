@@ -25,6 +25,9 @@ class PassiveDetector(ImplicitSubjectDetector):
         return [
             ImplicitSubjectDetection(token=tok, type=ImplicitSubjectType.PASSIVE) for tok in span if
             tok.tag_ == "VBN"
+            and any(
+                x.dep_ not in {"relcl", "acl"} for x in tok.children
+            )
             and not has_explicit_subject(find_conj_head(tok))
             and find_conj_head(tok).dep_ not in AUX_DEPS
             and not find_conj_head(tok).dep_ == "amod"
