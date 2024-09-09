@@ -18,5 +18,5 @@ class GerundDetector(ImplicitSubjectDetector):
             ImplicitSubjectDetection(token=tok, type=ImplicitSubjectType.GERUND) for tok in span if
             tok.tag_ == "VBG"
             and not has_explicit_subject(tok)
-            and tok.dep_ not in {"amod", "acl", "pcomp"}
+            and tok.dep_ not in {"amod", "acl", "pcomp", "prep"}
         ]

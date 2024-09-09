@@ -1,8 +1,8 @@
 import uuid
-from typing import List
 
 from spacy.tokens import Token, Span, MorphAnalysis
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
 from src.implicit_actor.insertion.pattern.inflect import conjugate
@@ -37,7 +37,7 @@ class GerundInserter(SpecializedInserter):
         c = conjugate(verb.lemma_, PRESENT, int(pers), map_num[num])
         return c
 
-    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: CandidateActor, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Feel free to guess.
         """
@@ -53,7 +53,7 @@ class GerundInserter(SpecializedInserter):
         if target.token.head.text in GerundInserter.PREPOSITIONS_TAKING_GERUND:
             target_replacement = target.token.text
         else:
-            target_replacement = GerundInserter._conjugate(target.token, subj.morph)
+            target_replacement = GerundInserter._conjugate(target.token, subj.token.morph)
 
         ctx = InsertionContext(
             insertion_id=str(uuid.uuid4())

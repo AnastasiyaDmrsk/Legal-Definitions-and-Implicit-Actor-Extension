@@ -3,9 +3,11 @@ from typing import List
 from nltk.stem import PorterStemmer
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
+from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
+    ImplicitSubjectType
 from src.implicit_actor.util import ACTIVE_VOICE_SUBJ_DEPS, search_for_head
 
 
@@ -30,7 +32,8 @@ class PreviouslyMentionedRelationFilter(CandidateFilter):
     def __init__(self):
         self._stemmer = PorterStemmer()
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], _: FilterContext) -> \
+            List[CandidateActor]:
         """
         Retain only candidates that are the subject of predicates with the same stem as the step of the target token.
         """
@@ -45,12 +48,12 @@ class PreviouslyMentionedRelationFilter(CandidateFilter):
             target_token = target.token
 
         target_stem = self._stemmer.stem(target_token.lemma_)
-        refined_candidates = {c.lemma_.lower() for c in candidates if
-                              c.head.dep_ != "auxpass" and
-                              self._stemmer.stem(search_for_head(c).lemma_) == target_stem and
-                              check_dep(c)}
+        refined_candidates = {c.token.lemma_.lower() for c in candidates if
+                              c.token.head.dep_ != "auxpass" and
+                              self._stemmer.stem(search_for_head(c.token).lemma_) == target_stem and
+                              check_dep(c.token)}
 
-        return [c for c in candidates if c.lemma_.lower() in refined_candidates] or candidates
+        return [c for c in candidates if c.token.lemma_.lower() in refined_candidates] or candidates
 
     @staticmethod
     def _check_patient_dep(tok: Token):

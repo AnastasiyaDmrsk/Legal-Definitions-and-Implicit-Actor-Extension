@@ -3,6 +3,7 @@ from typing import List
 import spacy
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
@@ -22,7 +23,8 @@ class SimilarityFilter(CandidateFilter):
         self._top_k = top_k
         self._use_context = use_context
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], ctx: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], ctx: FilterContext) -> \
+            List[CandidateActor]:
         ctx_str = str(ctx.context) + " " if self._use_context else ""
 
         input_texts = [

@@ -1,7 +1,8 @@
 import uuid
 
-from spacy.tokens import Token, Span
+from spacy.tokens import Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
 from src.implicit_actor.insertion.pattern.inflect import conjugate
@@ -21,7 +22,7 @@ class ImperativeInserter(SpecializedInserter):
         """
         return subject_type == ImplicitSubjectType.IMPERATIVE
 
-    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: CandidateActor, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Do the insert.
         """

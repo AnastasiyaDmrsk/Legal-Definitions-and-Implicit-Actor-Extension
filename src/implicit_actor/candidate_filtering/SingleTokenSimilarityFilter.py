@@ -1,8 +1,8 @@
 from typing import List
 
 import spacy
-from spacy.tokens import Token
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
@@ -22,7 +22,8 @@ class SingleTokenSimilarityFilter(CandidateFilter):
         self._missing_subject_inserter = missing_subject_inserter or ImplicitSubjectInserterImpl()
         self._nlp = spacy.load(model)
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], _: FilterContext) -> \
+            List[CandidateActor]:
         """
         The idea is to detect changes in the meaning of the verb between implicit and explicit subject of the target.
         We do not want to change the meaning of the target by inserting the target.

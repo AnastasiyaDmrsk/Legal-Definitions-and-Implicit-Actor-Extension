@@ -3,6 +3,7 @@ from typing import List
 import evaluate
 from spacy.tokens import Token
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
@@ -24,7 +25,8 @@ class PerplexityFilter(CandidateFilter):
         self._missing_subject_inserter = missing_subject_inserter or ImplicitSubjectInserterImpl()
         self._max_returned = max_returned
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], _: FilterContext) -> \
+            List[CandidateActor]:
         """
         Filters out candidates based the sentences perplexity when compared to the complexity of the
         sentence without the inserted candidate.

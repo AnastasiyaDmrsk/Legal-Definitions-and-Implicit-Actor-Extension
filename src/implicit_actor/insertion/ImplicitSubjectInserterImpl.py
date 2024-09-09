@@ -2,6 +2,7 @@ from typing import List, Optional, Tuple
 
 from spacy.tokens import Span, Token
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.insertion.DefaultInserter import DefaultInserter
 from src.implicit_actor.insertion.GerundInserter import GerundInserter
@@ -24,18 +25,18 @@ class ImplicitSubjectInserterImpl(ImplicitSubjectInserter):
         ]
         self._last_insertion_spans: List[Tuple[int, int]] = []
 
-    @staticmethod
-    def for_definition_candidates() -> "ImplicitSubjectInserterImpl":
-        """
-        Factory for an inserter specialized in inserting candidates taken from EU regulatory definitions.
-        """
-        return ImplicitSubjectInserterImpl([
-            GerundInserter(_add_the),
-            ImperativeInserter(_add_the),
-            DefaultInserter(_add_the),
-        ])
+    # @staticmethod
+    # def for_definition_candidates() -> "ImplicitSubjectInserterImpl":
+    #     """
+    #     Factory for an inserter specialized in inserting candidates taken from EU regulatory definitions.
+    #     """
+    #     return ImplicitSubjectInserterImpl([
+    #         GerundInserter(_add_the),
+    #         ImperativeInserter(_add_the),
+    #         DefaultInserter(_add_the),
+    #     ])
 
-    def insert(self, span: Span, targets: List[ImplicitSubjectDetection], subjects: List[Token]) -> str:
+    def insert(self, span: Span, targets: List[ImplicitSubjectDetection], subjects: List[CandidateActor]) -> str:
         """
         Creates a new string from the doc with the subjects inserted at the targets location.
         """
@@ -60,9 +61,3 @@ class ImplicitSubjectInserterImpl(ImplicitSubjectInserter):
         The positions of insertions
         """
         return self._last_insertion_spans
-
-def _add_the(x: str, *_):
-    """
-    Adds a 'the'.
-    """
-    return f"the {x}"

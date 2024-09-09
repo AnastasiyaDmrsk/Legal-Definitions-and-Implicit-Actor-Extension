@@ -5,9 +5,12 @@ from typing import List, Optional, Tuple, Dict
 import spacy
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
+from implicit_actor.candidate_extraction.SubjectObjectCandidateExtractor import SubjectObjectCandidateExtractor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
+from implicit_actor.missing_subject_detection.filters.missing_subject_detection_filter import \
+    MissingSubjectDetectionFilter
 from implicit_actor.util import get_noun_chunk
-from src.implicit_actor.candidate_extraction.CandidateExtracorImpl import SubjectObjectCandidateExtractor
 from src.implicit_actor.candidate_extraction.CandidateExtractor import CandidateExtractor
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
@@ -26,6 +29,7 @@ class ImplicitSubjectPipeline:
                  candidate_filters: List[CandidateFilter],
                  candidate_extractor: CandidateExtractor = None,
                  missing_subject_inserter: ImplicitSubjectInserter = None,
+                 missing_subject_filters: List[MissingSubjectDetectionFilter] = None,
                  verbose: bool = False,
                  fast: bool = False):
         """
@@ -40,34 +44,36 @@ class ImplicitSubjectPipeline:
         """
         self._candidate_filters = candidate_filters
         self._missing_subject_detectors = missing_subject_detectors
+        self._missing_subject_filters: List[MissingSubjectDetectionFilter] = missing_subject_filters or []
         self._candidate_extractor = candidate_extractor or SubjectObjectCandidateExtractor()
         self._missing_subject_inserter = missing_subject_inserter or ImplicitSubjectInserterImpl()
         self._verbose = verbose
         self._nlp = spacy.load("en_core_web_sm" if fast else "en_core_web_trf")
         self._last_detections = None
-        self._last_selected_candidates: Optional[List[Token]] = None
-        self._last_selected_candidate_with_target: Optional[List[Tuple[ImplicitSubjectDetection, Token]]] = None
+        self._last_selected_candidates: Optional[List[CandidateActor]] = None
+        self._last_selected_candidate_with_target: Optional[
+            List[Tuple[ImplicitSubjectDetection, CandidateActor]]] = None
         self._last_log = None
-        self._last_initial_candidates: List[Token] = []
+        self._last_initial_candidates: List[CandidateActor] = []
         self._last_candidates_before_tie_break: Dict[str, List[str]] = dict()
         self._last_active_filters: List[str] = list()
 
     def last_active_filters(self) -> List[str]:
         return self._last_active_filters
 
-    def last_initial_candidates(self) -> List[Token]:
+    def last_initial_candidates(self) -> List[CandidateActor]:
         return self._last_initial_candidates
 
     def last_selected_candidates_before_tie_break(self) -> Dict[str, List[str]]:
         return self._last_candidates_before_tie_break
 
-    def last_selected_candidates(self) -> Optional[List[Token]]:
+    def last_selected_candidates(self) -> Optional[List[CandidateActor]]:
         """
         Returns the last selected candidates. Useful for evaluation.
         """
         return self._last_selected_candidates
 
-    def last_selected_candidate_with_target(self) -> Optional[List[Tuple[ImplicitSubjectDetection, Token]]]:
+    def last_selected_candidate_with_target(self) -> Optional[List[Tuple[ImplicitSubjectDetection, CandidateActor]]]:
         return self._last_selected_candidate_with_target
 
     def last_detections(self) -> List[ImplicitSubjectDetection]:
@@ -86,12 +92,13 @@ class ImplicitSubjectPipeline:
         if self._verbose:
             print(*msg, **kwargs)
 
-    def _apply_candidate_filters(self, targets: List[ImplicitSubjectDetection], candidates: List[Token], context: Span):
+    def _apply_candidate_filters(self, targets: List[ImplicitSubjectDetection], candidates: List[CandidateActor],
+                                 context: Span):
         """
         Applies the candidate filters to the candidates in a chain operation.
         """
 
-        def _apply_filter(acc: List[Token], f: CandidateFilter):
+        def _apply_filter(acc: List[CandidateActor], f: CandidateFilter):
             prev_len = len(acc)
             if prev_len == 1:
                 self._debug(f"Short circuiting  {f.__class__.__name__} with {acc}.")
@@ -108,8 +115,9 @@ class ImplicitSubjectPipeline:
                 f"candidates and returned {intermediate_result}")
             return intermediate_result
 
-        def _logged_apply(acc: Tuple[List[Tuple[Optional[CandidateFilter], List[Token]]], List[Token]],
-                          f: CandidateFilter):
+        def _logged_apply(
+                acc: Tuple[List[Tuple[Optional[CandidateFilter], List[CandidateActor]]], List[CandidateActor]],
+                f: CandidateFilter):
             _log, _acc = acc
             _res = _apply_filter(_acc, f)
             _log.append((f, _res))
@@ -120,7 +128,7 @@ class ImplicitSubjectPipeline:
             log, res = reduce(_logged_apply, self._candidate_filters, ([(None, candidates)], candidates))
             tok = res[0] if res else candidates[0]
             self._last_candidates_before_tie_break[target.token.text] = list(
-                map(lambda x: get_noun_chunk(x).text, res)
+                map(lambda x: get_noun_chunk(x.token).text, res)
             )
             yield tok, log
 
@@ -163,6 +171,10 @@ class ImplicitSubjectPipeline:
                 x.token: x for x in detector.detect(inspected_text_span)
             })
         targets = list(targets.values())
+
+        for detection_filter in self._missing_subject_filters:
+            targets = detection_filter.filter(targets)
+
         self._last_detections = targets
 
         self._debug("Detected the following targets:\n", targets, sep="")

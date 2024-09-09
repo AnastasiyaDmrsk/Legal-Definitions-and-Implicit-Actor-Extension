@@ -4,6 +4,7 @@ from typing import List, Callable, Optional
 
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor, CandidateSource
 from implicit_actor.insertion.TokenList import TokenList
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
     ImplicitSubjectType
@@ -36,7 +37,7 @@ class SpecializedInserter(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def insert(self, subj: Token, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
+    def insert(self, subj: CandidateActor, list_tokens: TokenList[str], target: ImplicitSubjectDetection, span: Span):
         """
         Inserts the subject into the list_tokens list.
 
@@ -45,10 +46,11 @@ class SpecializedInserter(ABC):
         raise NotImplementedError()
 
     @staticmethod
-    def _clean_subject(subj: Token) -> str:
-        chunky_boi = get_noun_chunk(subj)
-        return SpecializedInserter._lower_case_first(str(chunky_boi.text_with_ws)) \
-            if not chunky_boi[0].pos_ == "PROPN" else str(chunky_boi)
+    def _clean_subject(subj: CandidateActor) -> str:
+        chunky_boi = get_noun_chunk(subj.token)
+        proposition = "" if subj.source != CandidateSource.DEFINITION else "the "
+        return proposition + SpecializedInserter._lower_case_first(str(chunky_boi.text_with_ws)) \
+            if chunky_boi[0].pos_ != "PROPN" else str(chunky_boi)
 
     @staticmethod
     def _lower_case_first(s: str) -> str:

@@ -2,6 +2,7 @@ from typing import List
 
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
@@ -16,7 +17,8 @@ class ProximityFilter(CandidateFilter):
 
     DEPENDANT_PENALTY = 999
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], _: FilterContext) -> \
+            List[CandidateActor]:
         """
         Returns the physically closest candidate. At most one candidate is selected so this can be used
         at the end of a pipeline.
@@ -31,14 +33,14 @@ class ProximityFilter(CandidateFilter):
             return candidates
 
         assert target.token.doc == candidates[
-            0].doc, "The ProximityRanker requires targets and candidates to be from the same doc."
+            0].token.doc, "The ProximityRanker requires targets and candidates to be from the same doc."
 
         target_children = set(target.token.children) | {tok for c in target.token.children for tok in c.children
                                                         if
                                                         c.dep_ == "auxpass"}
         return [min(candidates,
                     key=lambda c:
-                    abs(c.i - target.token.i) +
-                    (self.CATAPHORIC_PENALTY if c.i > target.token.i else 0) +
-                    (self.DEPENDANT_PENALTY if c in target_children else 0)
+                    abs(c.token.i - target.token.i) +
+                    (self.CATAPHORIC_PENALTY if c.token.i > target.token.i else 0) +
+                    (self.DEPENDANT_PENALTY if c.token in target_children else 0)
                     )]

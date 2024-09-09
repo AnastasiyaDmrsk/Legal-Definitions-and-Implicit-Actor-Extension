@@ -4,6 +4,7 @@ from typing import List
 
 from spacy.tokens import Token, Span
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
@@ -16,7 +17,8 @@ class CandidateTextOccurrenceFilter(CandidateFilter):
     [you, you, you, car, car, car, duck, penguin] -> [you, you, you, car, car, car]
     """
 
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], _: FilterContext) -> \
+            List[CandidateActor]:
         """
         Filter the candidates based purely on how often they occur.
         """
@@ -27,7 +29,7 @@ class CandidateTextOccurrenceFilter(CandidateFilter):
         grouping = defaultdict(list)
 
         for c in candidates:
-            grouping[c.text.lower()].append(c)
+            grouping[c.token.text.lower()].append(c)
 
         max_length = max(len(g) for g in grouping.values())
 

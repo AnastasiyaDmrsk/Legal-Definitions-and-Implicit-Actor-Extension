@@ -1,17 +1,19 @@
 from typing import List
 
-from spacy.tokens import Token, Span
+from spacy.tokens import Token
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 class SimilarVerbInDefinitionFilter(CandidateFilter):
-    def filter(self, target: ImplicitSubjectDetection, candidates: List[Token], _: FilterContext) -> List[Token]:
+    def filter(self, target: ImplicitSubjectDetection, candidates: List[CandidateActor], _: FilterContext) -> \
+            List[CandidateActor]:
         res = [
             c for c in candidates
-            if c.lemma_ in self._lemmata_in_definition(c)
+            if c.token.lemma_ in self._lemmata_in_definition(c.token)
         ]
 
         return res or candidates

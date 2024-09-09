@@ -25,6 +25,7 @@ class PassiveDetector(ImplicitSubjectDetector):
         return [
             ImplicitSubjectDetection(token=tok, type=ImplicitSubjectType.PASSIVE) for tok in span if
             tok.tag_ == "VBN"
+            # and tok.dep_ not in {"relcl", "acl"}  # remove me
             and any(
                 x.dep_ not in {"relcl", "acl"} for x in tok.children
             )

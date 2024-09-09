@@ -6,22 +6,27 @@ from typing import List
 import spacy
 
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
+from implicit_actor.candidate_extraction.ComposedCandidateExtractor import ComposedCandidateExtractor
 from implicit_actor.candidate_extraction.DefinitionCandidateExtractor import DefinitionCandidateExtractor
+from implicit_actor.candidate_extraction.PreambleExtractor import PreambleExtractor
 from implicit_actor.candidate_filtering.CandidateTextOccurrenceFilter import CandidateTextOccurrenceFilter
-from implicit_actor.candidate_filtering.DefinitionVerbStemFilter import DefinitionVerbStemFilter
 from implicit_actor.candidate_filtering.DependentOfSameSentenceFilter import DependentOfSameSentenceFilter
 from implicit_actor.candidate_filtering.ImperativeFilter import ImperativeFilter
 from implicit_actor.candidate_filtering.PartOfSpeechFilter import PartOfSpeechFilter
 from implicit_actor.candidate_filtering.PerplexityFilter import PerplexityFilter
 from implicit_actor.candidate_filtering.PreviouslyMentionedRelationFilter import PreviouslyMentionedRelationFilter
+from implicit_actor.candidate_filtering.ProximityFilter import ProximityFilter
 from implicit_actor.candidate_filtering.SimilarVerbInDefinitionFilter import SimilarVerbInDefinitionFilter
+from implicit_actor.candidate_filtering.SimilarityFilter import SimilarityFilter
 from implicit_actor.candidate_filtering.SynsetFilter import SynsetFilter
+from implicit_actor.candidate_filtering.VerbLinkFilter import VerbLinkFilter
 from implicit_actor.evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
 from implicit_actor.evaluation.FitlerFailAccumulator import FilterFailAccumulator
 from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
 from implicit_actor.missing_subject_detection.GerundDetector import GerundDetector
 from implicit_actor.missing_subject_detection.ImperativeDetector import ImperativeDetector
 from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
+from implicit_actor.missing_subject_detection.NounVerbStemDetector import NounVerbStemDetector
 from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDetector
 from src.implicit_actor.util import load_gold_standard, dependency_trees_equal
 
@@ -130,48 +135,53 @@ def run_gs_eval(pipeline: ImplicitSubjectPipeline, start=None, end=None):
 def run_evaluation_2():
     # TODO clean up
 
-    definition_candidate_inserter = ImplicitSubjectInserterImpl.for_definition_candidates()
+    definition_candidate_inserter = ImplicitSubjectInserterImpl()
 
     # TODO show second most likely candidate on hover over candidate
     pipeline = ImplicitSubjectPipeline(
         missing_subject_detectors=[
             PassiveDetector(),
-            # ImperativeDetector(),
+            # ImperativeDetector(),  # remove me
             GerundDetector(),
             NominalizedGerundWordlistDetector(),
-            # NounVerbStemDetector(),
+            # NounVerbStemDetector(),  # remove me
         ],
+        # missing_subject_filters=[MissingSubjectDetectionAuxFilter()],
         candidate_filters=[
-            #
-            #     # ImperativeFilter(),
             SynsetFilter(),
-            #     SimilarVerbInDefinitionFilter(),
-            DefinitionVerbStemFilter()
-            #
-            #     # PartOfSpeechFilter(),
-            #     # DependentOfSameSentenceFilter(),
-            #     # # ChatGPTFilter(),
-            #     # # TODO check if we can only compare target verb
-            #     # # SimilarityFilter(use_context=False, model="en_use_lg"),
-            #     # # TODO better tuning for the perplexity buffer (rho) value
-            #     # # ProximityFilter(),
-            #     # # TODO check if this is broken with new candidate extractor
-            #     # # TODO make this focus on key verbs (whatever that means) and give wordnet a try
-            #     # PreviouslyMentionedRelationFilter(),
-            #     # # TODO This is broken
-            #     # # CandidateTextOccurrenceFilter(),
-            #     PerplexityFilter(max_returned=3, missing_subject_inserter=definition_candidate_inserter,
-            #                      perplexity_buffer=1.3),
+            DependentOfSameSentenceFilter(),
+            VerbLinkFilter(
+                add_preamble_verbs=False,
+            ),
+            ImperativeFilter(),
+            # SimilarVerbInDefinitionFilter(),
+            # PartOfSpeechFilter(),
+            # #     # # ChatGPTFilter(),
+            # #     # # TODO check if we can only compare target verb
+            # SimilarityFilter(use_context=False, model="en_use_lg"),
+            # #     # # TODO better tuning for the perplexity buffer (rho) value
+            # # ProximityFilter(),
+            # #     # # TODO check if this is broken with new candidate extractor
+            # #     # # TODO make this focus on key verbs (whatever that means) and give wordnet a try
+            # PreviouslyMentionedRelationFilter(),
+            # #     # # TODO This is broken
+            # CandidateTextOccurrenceFilter(),
+            # PerplexityFilter(max_returned=3, missing_subject_inserter=definition_candidate_inserter,
+            #                  perplexity_buffer=1.3),
         ],
         missing_subject_inserter=definition_candidate_inserter,
-        # TODO filter definitions on only relevant verb in definition
-        candidate_extractor=DefinitionCandidateExtractor(),  # SubjectObjectCandidateExtractor(),
+        candidate_extractor=ComposedCandidateExtractor([
+            DefinitionCandidateExtractor(),
+            PreambleExtractor(),
+            # SubjectObjectCandidateExtractor(),
+        ]),
         verbose=False
     )
 
     n_correct_actor = 0
     n_inspected_actor = 0
     n_top_5_actor = 0
+    n_initial_correct_candidate = 0
 
     detection_accumulator = ClassificationStatisticsAccumulator()
     filter_stats_accumulator = FilterFailAccumulator()
@@ -179,6 +189,10 @@ def run_evaluation_2():
     with open(f"./data/gold_standard/implicit/article4.txt", "r",
               encoding="utf-8") as additional_ctx_file:
         art4 = additional_ctx_file.read()
+
+    with open(f"./data/gold_standard/implicit/gdpr_preamble.txt", "r",
+              encoding="utf-8") as gdpr_preamble_file:
+        gdpr_preamble = gdpr_preamble_file.read()
 
     with open(f"./data/gold_standard/implicit/32017R1563.txt", "r", encoding="utf-8") as f:
         t_32017R1563 = f.read()
@@ -195,7 +209,7 @@ def run_evaluation_2():
         reader = csv.reader(file, delimiter=";")
         next(reader, None)
 
-        # for _ in range(280):
+        # for _ in range(55):
         #     next(reader, None)
 
         # Now, this could be done more efficiently, but that is not how we roll :)
@@ -215,12 +229,13 @@ def run_evaluation_2():
             ctx = t_32019R0517
         else:
             with open(f"./data/gold_standard/implicit/{source}.txt", "r", encoding="utf-8") as ctx_file:
-                ctx = ctx_file.read()
+                ctx = art4 + "\n" * 5 + ctx_file.read()
 
-        additional_ctx = ""
         if source not in ["32017R1563", "32021R0444", "32019R0517"]:
-            additional_ctx = art4
-        pipeline.apply(sentence, ctx + "\n\n\n" + additional_ctx)
+            # ctx = art4 + "\n" * 5 + ctx  # gdpr_preamble + "\n" * 5 + art4 + "\n" * 5 + ctx
+            ctx = gdpr_preamble + "\n" * 5 + art4 + "\n" * 5 + ctx
+        print("---")
+        print(pipeline.apply(sentence, ctx))
 
         # target, actor, type (y/n/i)
         expected_detections = list(map(lambda x: x[3].split(" ")[0].lower(), filter(lambda x: x[2] != "n", lines)))
@@ -238,19 +253,27 @@ def run_evaluation_2():
 
         num_y = sum(map(lambda l: 1 if l[2] == "y" else 0, lines))
 
+        initial_candidate_text = [candidate.token.text.lower() for candidate in pipeline.last_initial_candidates()]
+
         # Note, we know that every target always has the same actor per sentence in the GS thus some simplifications
         for provided_target, provided_actor in pipeline.last_selected_candidate_with_target():
             for (_, _, _, actual_target, _, actual_actor, *_) in lines:
-
                 if provided_target.token.text not in actual_target:
                     break
 
-                if provided_actor.text in actual_actor:
+                print("?")
+                print(actual_actor, initial_candidate_text)
+                print("?")
+                if any(a.lower() in initial_candidate_text for a in actual_actor.split(" ")):
+                    n_initial_correct_candidate += 1
+
+                if provided_actor.token.text.lower() in actual_actor.lower():
                     n_correct_actor += 1
                     n_top_5_actor += 1
                     break
 
-                if any(a in pipeline.last_selected_candidates_before_tie_break().get(provided_target.token.text, [])[:5] for a in
+                if any(a.lower() in pipeline.last_selected_candidates_before_tie_break().get(provided_target.token.text, [])[:5]
+                       for a in
                        actual_actor.split(" ")):
                     n_top_5_actor += 1
                     break
@@ -267,11 +290,14 @@ def run_evaluation_2():
 
         # print(pipeline.last_selected_candidates())
         print(f"precision {detection_accumulator.precision()}, recall {detection_accumulator.recall()}")
-        # Note, this is a "conditional probability" stat
+        # Note, this is a "conditional probability" stat -> !!! no i do not think it is???
         print(
             f"correct actors {n_correct_actor} / {n_inspected_actor} ({n_correct_actor / n_inspected_actor if n_inspected_actor > 0 else math.nan})")
         print(
             f"correct top 5 actors {n_top_5_actor} / {n_inspected_actor} ({n_top_5_actor / n_inspected_actor if n_inspected_actor > 0 else math.nan})")
+        print(
+            f"correct initial candidates {n_initial_correct_candidate} / {n_inspected_actor} ({n_initial_correct_candidate / n_inspected_actor if n_inspected_actor > 0 else math.nan})"
+        )
         print("---")
 
     with open("./data/output/passive_problems.txt", "w+", encoding="utf-8") as out:

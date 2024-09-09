@@ -3,6 +3,7 @@ from typing import List
 
 from spacy.tokens import Span, Token
 
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
@@ -12,7 +13,7 @@ class ImplicitSubjectInserter(ABC):
     """
 
     @abstractmethod
-    def insert(self, span: Span, targets: List[ImplicitSubjectDetection], subjects: List[Token]) -> str:
+    def insert(self, span: Span, targets: List[ImplicitSubjectDetection], subjects: List[CandidateActor]) -> str:
         """
         Insert into the target sentence.
 
