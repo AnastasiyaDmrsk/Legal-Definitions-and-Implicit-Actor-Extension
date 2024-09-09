@@ -51,8 +51,7 @@ class DefaultInserter(SpecializedInserter):
                 cleaned_subj.strip(), ctx) + insertion_point.whitespace_
         else:
             list_tokens[
-                insertion_point.i - span.start] = self.target_mapper(insertion_point.text,
-                                                                     ctx) + " by " + self.subject_mapper(
+                insertion_point.i - span.start] = insertion_point.text + " by " + self.subject_mapper(
                 cleaned_subj.strip(), ctx) + insertion_point.whitespace_
             list_tokens[target.token.i - span.start] = self.target_mapper(target.token.text,
                                                                           ctx) + target.token.whitespace_

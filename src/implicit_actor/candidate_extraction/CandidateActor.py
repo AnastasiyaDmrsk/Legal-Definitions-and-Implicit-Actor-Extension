@@ -8,6 +8,7 @@ class CandidateSource(Enum):
     DEFINITION = "DEFINITION"
     PREAMBLE = "PREAMBLE"
     BODY = "BODY"
+    ARTIFICIAL = "ARTIFICIAL"
 
 
 @dataclasses.dataclass

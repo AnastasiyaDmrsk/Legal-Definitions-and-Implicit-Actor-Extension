@@ -139,7 +139,7 @@ def process_definitions(text):
         # search for the first verb after the definition
         first_verb = None
         for token in doc:
-            if token.text.__contains__("mean"):
+            if "mean" in token.text:
                 first_verb = token
                 break
             if token.dep_ == "ROOT" and (token.pos_ == "VERB"
@@ -238,9 +238,11 @@ def get_dictionary():
 
 
 def any_definition_in_text(text):
-    # TODO a more lenien matcher would be nice here, for example match third countries for definition third country (compare lemmata)
+    # TODO a more lenient matcher would be nice here, for example match third
+    # countries for definition third country (compare lemmata)
     definitions_in_text = set(tuple())
     starts_and_ends = set(tuple())
+
     for key, value in definitions_dict.items():
         capitalized = key[0].islower() and key.capitalize() in text
         if key in text or capitalized:

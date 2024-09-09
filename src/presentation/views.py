@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from explicit_information.definitions import find_definitions, get_annotations, \
-    any_definition_in_text, get_dictionary
+    any_definition_in_text, get_dictionary, check_more_definitions_in_text
 from explicit_information.relations import noun_relations, build_tree, get_hyponymy, get_meronymy, get_synonymy
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
 from implicit_actor.implicit_subject_pipeline_factory import create_implicit_subject_pipeline
@@ -149,7 +149,7 @@ def extract_text(url):
             old_text = paragraph.get_text().replace("\u00A0", " ")
             new_text = pipeline.apply(old_text, context + "\n\n\n\n" + old_text)  # + "\n\n\n\n" + old_text
             for c in pipeline.last_selected_candidates():
-                noun_chunk = get_noun_chunk(c)
+                noun_chunk = get_noun_chunk(c.token)
                 implicit_actor_counter[noun_chunk.text] += 1
             new_html = BeautifulSoup(new_text, 'html.parser')
             paragraph.clear()
@@ -188,9 +188,9 @@ def add_annotations_to_the_regulation(soup):
         for div in soup.find_all("div"):
             div.unwrap()
 
-    for sentence in soup.find_all("p"):
-        if check_if_article(sentence.text):
-            article = sentence.text
+    for paragraph in soup.find_all("p"):
+        if check_if_article(paragraph.text):
+            article = paragraph.text
             create_an_article(article)
 
         # for (key, value) in definitions:
@@ -205,11 +205,13 @@ def add_annotations_to_the_regulation(soup):
         definitions_in_sentence: Set[str] = set()
 
         # create copy as we will change the elements during iteration
-        for element in list(sentence.strings):
+        for element in list(paragraph.strings):
+            # <p>abc asd</p>
             text = element.text
 
             # TODO find out what this line does...
-            # if not check_more_definitions_in_text(key, sentence.text, capitalized):
+            # if check_more_definitions_in_text(key, paragraph.text, capitalized):
+            #     continue
             # sort by the starting index
             defs = sorted(any_definition_in_text(text), key=lambda x: x[2])
             start_index = 0

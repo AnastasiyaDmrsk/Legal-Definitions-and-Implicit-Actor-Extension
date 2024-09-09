@@ -1,6 +1,6 @@
 import warnings
 from functools import reduce
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Iterable
 
 import spacy
 from spacy.tokens import Token, Span
@@ -93,7 +93,7 @@ class ImplicitSubjectPipeline:
             print(*msg, **kwargs)
 
     def _apply_candidate_filters(self, targets: List[ImplicitSubjectDetection], candidates: List[CandidateActor],
-                                 context: Span):
+                                 context: Span) -> Iterable[CandidateActor]:
         """
         Applies the candidate filters to the candidates in a chain operation.
         """
