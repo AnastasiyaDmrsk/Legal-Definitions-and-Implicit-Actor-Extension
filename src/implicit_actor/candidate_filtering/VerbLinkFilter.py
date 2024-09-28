@@ -10,7 +10,6 @@ from implicit_actor.candidate_extraction.PreambleExtractor import PreambleExtrac
 from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
-from implicit_actor.missing_subject_detection.NounVerbStemDetector import NounVerbStemDetector
 
 
 class VerbLinkFilter(CandidateFilter):
@@ -21,9 +20,13 @@ class VerbLinkFilter(CandidateFilter):
         Test TODOs: Preambel mit mehr filtern
         When extracting verbs from the preamble, just stemming for definitions and only verbs for rest
         """
-
-        self._stem_detector = NounVerbStemDetector()
         self._stemmer = PorterStemmer()
+
+        with open("./data/external/en-verbs.txt", 'r', encoding="utf-8") as wf:
+            # we extract the base form and the gerund
+            self._verbs = {y for x in wf.readlines() if not x.startswith(";") for y in
+                           (x.split(",")[0], x.split(",")[5])}
+
         self._add_preamble_verbs = add_preamble_verbs
         self._add_synonyms = add_synonyms
         self._candidate_definitions_with_actions: Optional[Dict[str, Set[str]]] = None
@@ -35,6 +38,7 @@ class VerbLinkFilter(CandidateFilter):
         self._candidate_definitions_with_actions = self._get_candidate_definitions_with_actions(candidates,
                                                                                                 ctx)
 
+        # print(self._candidate_definitions_with_actions)
         filtered = list(
             filter(lambda x: self._pred(target.token, x), candidates)
         )
@@ -46,15 +50,21 @@ class VerbLinkFilter(CandidateFilter):
         return target.lemma_ in x or self._stemmer.stem(
             target.lemma_) in x
 
+    def _is_action(self, token: Token):
+        lexnames = [x.lexname() for x in wn.synsets(token.lemma_, pos=wn.NOUN)]
+        return "noun.act" in lexnames
+
     def _extract_additional_stems(self, candidate: CandidateActor) -> Iterable[Token]:
         if candidate.source != CandidateSource.PREAMBLE:
-            return (x.token for x in self._stem_detector.detect(self._definition(candidate)))
-
+            return (t for t in self._definition(candidate) if
+                    t.pos_ == "VERB" or (t.pos_ == "NOUN" and (self._is_action(t) or t.lemma_ in self._verbs)))
         return (x for x in candidate.token.sent if x.pos_ == "VERB")
 
     def _get_candidate_definitions_with_actions(self, candidates: List[CandidateActor], ctx: FilterContext):
         # Yes, we are doing a lot of duplicate and unnecessary calculation here :D
         # This holds data of the form: verb -> verbs inside of verb definition
+
+        # e.g. processing -> collect(ion), record(ing), ...
         raw_definition_stems = [
             (self._stemmer.stem(v.token.text), [
                 self._stemmer.stem(x.lemma_) for x in self._extract_additional_stems(v)
@@ -65,6 +75,7 @@ class VerbLinkFilter(CandidateFilter):
         for k, v in raw_definition_stems:
             definition_stems[k].extend(v)
 
+        # e.g., "processor" -> processes
         raw_verb_definitions_with_actions = [
             (candidate, [v.lemma_ for v in self._definition(candidate) if v.dep_ in {"relcl", "acl"}]) for candidate
             in candidates

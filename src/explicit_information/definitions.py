@@ -40,6 +40,24 @@ def find_definitions(soup):
     save_to_sub_definitions()
     return definitions_list
 
+def find_definitions_2(soup):
+    div_re = re.compile(r"^art_\d+$")
+    definitions_header = soup.find(text="Definitions")
+    definitions_article = definitions_header.find_parent(
+        'div', id=lambda x: x and div_re.fullmatch(x),
+    )
+
+    global annotations
+    annotations = {}
+    global definitions_list
+    definitions_list = list(tuple())
+    global definitions_dict
+    definitions_dict = {}
+
+    for child in definitions_article.find_all('p', class_='oj-normal'):
+        process_definitions(child.text)
+    save_to_sub_definitions()
+    return definitions_list
 
 def check_definition_part_of_another_definition(definition):
     part_def = set()

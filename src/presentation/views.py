@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from explicit_information.definitions import find_definitions, get_annotations, \
-    any_definition_in_text, get_dictionary, check_more_definitions_in_text
+    any_definition_in_text, get_dictionary, check_more_definitions_in_text, find_definitions_2
 from explicit_information.relations import noun_relations, build_tree, get_hyponymy, get_meronymy, get_synonymy
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
 from implicit_actor.implicit_subject_pipeline_factory import create_implicit_subject_pipeline
@@ -45,7 +45,7 @@ def index(request):
             global celex
             celex = form.cleaned_data['number']
             global pipeline
-            pipeline = create_implicit_subject_pipeline(form.cleaned_data['filters'])
+            pipeline = create_implicit_subject_pipeline(form.cleaned_data['filters'], form.cleaned_data['preamble'])
             global site
             site = load_document(celex)
             return HttpResponseRedirect('result/')
@@ -125,8 +125,10 @@ def extract_text(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
+    global reg_title
+    reg_title = find_title(soup)
     global definitions
-    definitions = find_definitions(soup)
+    definitions = find_definitions_2(soup)
 
     for script in soup.find_all('script'):
         script.decompose()
@@ -156,8 +158,7 @@ def extract_text(url):
             paragraph.append(new_html)
     soup.smooth()
 
-    global reg_title
-    reg_title = find_title(soup)
+
     global done_date
     done_date = soup.find(string=re.compile("Done at"))
     global annotations
@@ -206,7 +207,6 @@ def add_annotations_to_the_regulation(soup):
 
         # create copy as we will change the elements during iteration
         for element in list(paragraph.strings):
-            # <p>abc asd</p>
             text = element.text
 
             # TODO find out what this line does...

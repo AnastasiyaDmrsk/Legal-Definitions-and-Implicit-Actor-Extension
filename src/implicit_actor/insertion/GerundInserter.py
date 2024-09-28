@@ -63,7 +63,7 @@ class GerundInserter(SpecializedInserter):
             if insertion_point.is_sent_start:
                 list_tokens[
                     insertion_point.i - span.start] = self.subject_mapper(
-                    SpecializedInserter._upper_case_first(cleaned_subj), ctx) + self.target_mapper(
+                    SpecializedInserter._upper_case_first(cleaned_subj), ctx) + " " + self.target_mapper(
                     SpecializedInserter._lower_case_first(target_replacement), ctx) + insertion_point.whitespace_
             else:
                 list_tokens[insertion_point.i - span.start] = self.subject_mapper(SpecializedInserter._lower_case_first(

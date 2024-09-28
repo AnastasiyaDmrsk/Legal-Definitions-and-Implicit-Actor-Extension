@@ -1,3 +1,14 @@
-
+European electronic systems is a hyponym of electronic systems
+common component is a hyponym of component
+customs authorities is a hyponym of customs authorities
+national component is a hyponym of component
+third country is a hyponym of country
 
 Hyponymy Tree: 
+electronic systems
+| European electronic systems
+component
+| common component
+| national component
+country
+| third country

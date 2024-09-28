@@ -5,7 +5,7 @@ from spacy.tokens import Span
 
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
 from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
-
+from nltk.corpus import wordnet as wn
 
 class NounVerbStemDetector(ImplicitSubjectDetector):
     """

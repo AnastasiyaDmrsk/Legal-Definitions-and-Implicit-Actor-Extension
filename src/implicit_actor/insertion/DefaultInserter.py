@@ -30,13 +30,14 @@ class DefaultInserter(SpecializedInserter):
         # Skip subtrees that have an ADP as head and are linked by prep.
         potential_insertion_points = list(itertools.chain.from_iterable(
             x.subtree for x in target.token.rights if
-            (x.dep_ == "prep" and x.pos_ == "ADP") or x.dep_ in {"dative", "advmod", "nummod"})) or [
+            (x.dep_ == "prep" and x.pos_ == "ADP") or x.dep_ in {"dative", "advmod", "nummod", "prt"})) or [
                                          target.token]
         insertion_point = max(potential_insertion_points, key=lambda tok: tok.i) or target.token
 
         # I think I remember this from an English course but cannot find a source for this anymore
         if abs(insertion_point.i - target.token.i) > 9:
-            insertion_point = target.token
+            phrasal_verb_participle = next((x for x in target.token.rights if x.dep_ == "prt"), None)
+            insertion_point = phrasal_verb_participle or target.token
 
         ctx = InsertionContext(
             insertion_id=str(uuid.uuid4())

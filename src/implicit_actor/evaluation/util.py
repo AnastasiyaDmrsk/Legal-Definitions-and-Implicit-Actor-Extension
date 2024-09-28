@@ -6,130 +6,24 @@ from typing import List
 import spacy
 
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
+from implicit_actor.candidate_extraction.CandidateActor import CandidateActor, CandidateSource
 from implicit_actor.candidate_extraction.ComposedCandidateExtractor import ComposedCandidateExtractor
 from implicit_actor.candidate_extraction.DefinitionCandidateExtractor import DefinitionCandidateExtractor
 from implicit_actor.candidate_extraction.PreambleExtractor import PreambleExtractor
-from implicit_actor.candidate_filtering.CandidateTextOccurrenceFilter import CandidateTextOccurrenceFilter
 from implicit_actor.candidate_filtering.DependentOfSameSentenceFilter import DependentOfSameSentenceFilter
 from implicit_actor.candidate_filtering.ImperativeFilter import ImperativeFilter
 from implicit_actor.candidate_filtering.PartOfSpeechFilter import PartOfSpeechFilter
 from implicit_actor.candidate_filtering.PerplexityFilter import PerplexityFilter
-from implicit_actor.candidate_filtering.PreviouslyMentionedRelationFilter import PreviouslyMentionedRelationFilter
-from implicit_actor.candidate_filtering.ProximityFilter import ProximityFilter
-from implicit_actor.candidate_filtering.SimilarVerbInDefinitionFilter import SimilarVerbInDefinitionFilter
-from implicit_actor.candidate_filtering.SimilarityFilter import SimilarityFilter
 from implicit_actor.candidate_filtering.SynsetFilter import SynsetFilter
 from implicit_actor.candidate_filtering.VerbLinkFilter import VerbLinkFilter
 from implicit_actor.evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
 from implicit_actor.evaluation.FitlerFailAccumulator import FilterFailAccumulator
 from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
 from implicit_actor.missing_subject_detection.GerundDetector import GerundDetector
-from implicit_actor.missing_subject_detection.ImperativeDetector import ImperativeDetector
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
+    ImplicitSubjectType
 from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
-from implicit_actor.missing_subject_detection.NounVerbStemDetector import NounVerbStemDetector
 from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDetector
-from src.implicit_actor.util import load_gold_standard, dependency_trees_equal
-
-
-def evaluate_detection(expected: List[str], actual: List[str]) -> ClassificationStatisticsAccumulator:
-    """
-    Evaluates a list of detected subjects against a gold standard
-    """
-
-    acc = ClassificationStatisticsAccumulator()
-
-    exp_grouping = defaultdict(int)
-    act_grouping = defaultdict(int)
-
-    for e in expected:
-        exp_grouping[e] += 1
-
-    for a in actual:
-        act_grouping[a] += 1
-
-    for k in exp_grouping.keys() | act_grouping.keys():
-        exp = exp_grouping[k]
-        act = act_grouping[k]
-        acc.tp += min(exp, act)
-        acc.fp += max(0, act - exp)
-        acc.fn += max(0, exp - act)
-
-    return acc
-
-
-def run_gs_eval(pipeline: ImplicitSubjectPipeline, start=None, end=None):
-    """
-    Runs the provided pipeline against the gold standard and prints
-    debug and evaluation data.
-
-    :param pipeline: The pipeline to be used for evaluation
-    :param start:    The index of the entry of the gold standard to start from.
-    :param end:      The index of the last entry of the gold standard to inspect.
-    """
-
-    similarity_nlp = spacy.load("en_core_web_lg")
-    n_inspected = 0
-    n_correct = 0
-
-    detection_accumulator = ClassificationStatisticsAccumulator()
-    filter_stats_accumulator = FilterFailAccumulator()
-
-    mask = ""
-    for i, (source, inp, gs, impl_subjects, targets) in enumerate(list(load_gold_standard())[start:end]):
-
-        print(f"Enter {i}")
-        print("Context:")
-        print(source)
-        print("-" * 5)
-        print("Inspected text:")
-        print(inp)
-        print("-" * 5)
-
-        generated = pipeline.apply(
-            inspected_text=inp,
-            context=source
-        )
-
-        current_stats = evaluate_detection(targets, [x.token.text for x in pipeline.last_detections()])
-
-        detection_accumulator.apply(current_stats)
-        filter_stats_accumulator.apply(pipeline.last_filter_log(), targets, impl_subjects)
-
-        print(
-            f"Detection stats: Precision {current_stats.precision() * 100 :.2f}%, Recall {current_stats.recall() * 100 :.2f}%")
-
-        gs_doc = similarity_nlp(gs)
-        generated_doc = similarity_nlp(generated)
-        similarity = gs_doc.similarity(generated_doc)
-        n_inspected += 1
-
-        if gs.strip() == generated.strip() or dependency_trees_equal(gs_doc, generated_doc):
-            n_correct += 1
-            mask += "x"
-        elif similarity > 0.995:
-            mask += "-"
-        else:
-            mask += "_"
-
-        print("-" * 4)
-        print("Expected:", gs)
-        print("Actual:  ", generated)
-        print("Similarity: ", similarity)
-        print(f"Dependency equality: {dependency_trees_equal(gs_doc, generated_doc)}")
-
-        print("Filter failures by filter:", filter_stats_accumulator.counts())
-        print(f"Did not filter correct candidate: {filter_stats_accumulator.performance_str()}")
-        print(f"Num filtered by filter: {filter_stats_accumulator.num_filtered()}")
-
-        print("-" * 9)
-
-    print(mask)
-    result_txt = f"Correct: {n_correct}/{n_inspected} ({n_correct / n_inspected * 100 :.2f}%). Detection stats: Precision {detection_accumulator.precision() * 100 :.2f}%, Recall {detection_accumulator.recall() * 100 :.2f}%"
-    print(result_txt)
-
-    with open("./log/res", "a") as f:
-        f.write(
-            f"{mask} {result_txt} | {[x.__class__.__name__ for x in pipeline._missing_subject_detectors]} | {[x.__class__.__name__ for x in pipeline._candidate_filters]}\n")
 
 
 def run_evaluation_2():
@@ -148,26 +42,26 @@ def run_evaluation_2():
         ],
         # missing_subject_filters=[MissingSubjectDetectionAuxFilter()],
         candidate_filters=[
-            SynsetFilter(),
+            ImperativeFilter(),
             DependentOfSameSentenceFilter(),
+            PartOfSpeechFilter(),
             VerbLinkFilter(
                 add_preamble_verbs=False,
             ),
-            ImperativeFilter(),
-            # SimilarVerbInDefinitionFilter(),
-            # PartOfSpeechFilter(),
-            # #     # # ChatGPTFilter(),
-            # #     # # TODO check if we can only compare target verb
-            # SimilarityFilter(use_context=False, model="en_use_lg"),
-            # #     # # TODO better tuning for the perplexity buffer (rho) value
-            # # ProximityFilter(),
-            # #     # # TODO check if this is broken with new candidate extractor
-            # #     # # TODO make this focus on key verbs (whatever that means) and give wordnet a try
-            # PreviouslyMentionedRelationFilter(),
-            # #     # # TODO This is broken
-            # CandidateTextOccurrenceFilter(),
-            # PerplexityFilter(max_returned=3, missing_subject_inserter=definition_candidate_inserter,
-            #                  perplexity_buffer=1.3),
+            # # SimilarVerbInDefinitionFilter(),
+            SynsetFilter(),
+            # # #     # # ChatGPTFilter(),
+            # # #     # # TODO check if we can only compare target verb
+            # # SimilarityFilter(use_context=False, model="en_use_lg"),
+            # # #     # # TODO better tuning for the perplexity buffer (rho) value
+            # # # ProximityFilter(),
+            # # #     # # TODO check if this is broken with new candidate extractor
+            # # #     # # TODO make this focus on key verbs (whatever that means) and give wordnet a try
+            # # PreviouslyMentionedRelationFilter(),
+            # # #     # # TODO This is broken
+            # # CandidateTextOccurrenceFilter(),
+            PerplexityFilter(max_returned=3, missing_subject_inserter=definition_candidate_inserter,
+                             perplexity_buffer=1.3),
         ],
         missing_subject_inserter=definition_candidate_inserter,
         candidate_extractor=ComposedCandidateExtractor([
@@ -183,7 +77,13 @@ def run_evaluation_2():
     n_top_5_actor = 0
     n_initial_correct_candidate = 0
 
+    n_clauses_inspected = 0
+    n_clauses_inspected_where_detection = 0
+    n_clauses_inspected_where_detection_and_gs = 0
+    n_total_extracted_candidates = 0
+
     detection_accumulator = ClassificationStatisticsAccumulator()
+    detection_accumulator_y_only = ClassificationStatisticsAccumulator()
     filter_stats_accumulator = FilterFailAccumulator()
 
     with open(f"./data/gold_standard/implicit/article4.txt", "r",
@@ -204,23 +104,16 @@ def run_evaluation_2():
         t_32021R0444 = f.read()
 
     passive_problems = ""
+    sent_output = ""
 
-    with open("./data/gold_standard/implicit/gold_standard.csv", 'r', encoding="utf-8") as file:
+    with open("./data/gold_standard/implicit/gold_standard_new.csv", 'r', encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=";")
-        next(reader, None)
-
-        # for _ in range(55):
-        #     next(reader, None)
-
-        # Now, this could be done more efficiently, but that is not how we roll :)
         grouped_by_sentence = defaultdict(list)
-        for line in reader:
-            grouped_by_sentence[line[1].strip()].append(line)
+        for line in list(reader)[1:232]:
+            print(line)
+            grouped_by_sentence[(line[0].strip(), line[1].strip())].append(line)
 
-    for sentence, lines in grouped_by_sentence.items():
-        # We assume that if the sentences are the same, the source is also the same
-        source = lines[0][0]
-
+    for (source, sentence), lines in grouped_by_sentence.items():
         if source == "32017R1563":
             ctx = t_32017R1563
         elif source == "32021R0444":
@@ -232,64 +125,102 @@ def run_evaluation_2():
                 ctx = art4 + "\n" * 5 + ctx_file.read()
 
         if source not in ["32017R1563", "32021R0444", "32019R0517"]:
-            # ctx = art4 + "\n" * 5 + ctx  # gdpr_preamble + "\n" * 5 + art4 + "\n" * 5 + ctx
-            ctx = gdpr_preamble + "\n" * 5 + art4 + "\n" * 5 + ctx
+            pass
+            # TODO put back in when needed
+            # ctx = gdpr_preamble + "\n" * 5 + ctx
         print("---")
-        print(pipeline.apply(sentence, ctx))
+        produced_sent = pipeline.apply(sentence, ctx)
+        n_clauses_inspected += 1
+        n_total_extracted_candidates += len(pipeline.last_initial_candidates())
+        print(pipeline.last_initial_candidates())
+        if pipeline.last_detections():
+            n_clauses_inspected_where_detection += 1
 
+        # Note, that we are only comparing the root word for each actor
+        # This is not
         # target, actor, type (y/n/i)
-        expected_detections = list(map(lambda x: x[3].split(" ")[0].lower(), filter(lambda x: x[2] != "n", lines)))
+        expected_detections_y = list(map(lambda x: x[3].lower(), filter(lambda x: x[2] == "y", lines)))
+        expected_detections = list(map(lambda x: x[3].lower(), filter(lambda x: x[2] != "n", lines)))
         provided_detections = list(map(lambda x: x.token.text.lower(), pipeline.last_detections()))
+
+        num_y = sum(map(lambda l: 1 if l[2] == "y" else 0, lines))
 
         detection_accumulator.tp += len(intersect_lists(expected_detections, provided_detections))
         detection_accumulator.fp += len(subtract_lists(provided_detections, expected_detections))
         detection_accumulator.fn += len(subtract_lists(expected_detections, provided_detections))
 
+        detection_accumulator_y_only.tp += len(intersect_lists(expected_detections_y, provided_detections))
+        detection_accumulator_y_only.fp += len(subtract_lists(provided_detections, expected_detections_y))
+        detection_accumulator_y_only.fn += len(subtract_lists(expected_detections_y, provided_detections))
+
         bad = subtract_lists(provided_detections, expected_detections)
-        for b in bad:
-            d = next(p for p in pipeline.last_detections() if p.token.text.lower() == b)
+        for expected_sent in bad:
+            d = next(p for p in pipeline.last_detections() if p.token.text.lower() == expected_sent)
             if d:
                 passive_problems += f'"{d.token.text}";"{d.type}";"{sentence}";"{source}";"{pipeline.last_initial_candidates()}";"{pipeline.last_selected_candidates_before_tie_break()}"\n'
 
-        num_y = sum(map(lambda l: 1 if l[2] == "y" else 0, lines))
+        if pipeline.last_detections() and num_y > 0:
+            n_clauses_inspected_where_detection_and_gs += 1
 
-        initial_candidate_text = [candidate.token.text.lower() for candidate in pipeline.last_initial_candidates()]
+        initial_candidate_text = [candidate.token.text.lower().strip() for candidate in
+                                  pipeline.last_initial_candidates()]
+        for (_, _, type_flag, _, _, actual_actor, *_) in lines:
+            if type_flag != "y":
+                continue
+
+            if actual_actor.lower().strip() in initial_candidate_text:
+                n_initial_correct_candidate += 1
 
         # Note, we know that every target always has the same actor per sentence in the GS thus some simplifications
-        for provided_target, provided_actor in pipeline.last_selected_candidate_with_target():
-            for (_, _, _, actual_target, _, actual_actor, *_) in lines:
+        for (_, _, _, actual_target, _, actual_actor, *_) in lines:
+            for provided_target, provided_actor in pipeline.last_selected_candidate_with_target():
                 if provided_target.token.text not in actual_target:
-                    break
+                    continue
 
-                print("?")
-                print(actual_actor, initial_candidate_text)
-                print("?")
-                if any(a.lower() in initial_candidate_text for a in actual_actor.split(" ")):
-                    n_initial_correct_candidate += 1
+                f = False
+                # if any(a.lower() in initial_candidate_text for a in actual_actor.split(" ")):
+                #     n_initial_correct_candidate += 1
+                #     f = True
 
                 if provided_actor.token.text.lower() in actual_actor.lower():
                     n_correct_actor += 1
-                    n_top_5_actor += 1
-                    break
+                    f = True
 
-                if any(a.lower() in pipeline.last_selected_candidates_before_tie_break().get(provided_target.token.text, [])[:5]
-                       for a in
-                       actual_actor.split(" ")):
-                    n_top_5_actor += 1
+                # print("!!!!")
+                # print(pipeline.last_selected_candidates_before_tie_break_root_only())
+                # print(provided_target.token.text.lower())
+                # print(actual_actor.lower())
+
+                for top_5 in pipeline.last_selected_candidates_before_tie_break_root_only().get(
+                        provided_target.token.text.lower(), [])[
+                             :5]:
+                    if top_5.lower() in actual_actor.lower():
+                        n_top_5_actor += 1
+                        f = True
+                        break
+
+                if f:
                     break
 
         n_inspected_actor += num_y
+
+        original_sent = str(sentence).replace('"', "'").replace(";", "&#59;")
+        expected_sent = str(line[0][6]).replace('"', "'").replace(";", "&#59;")
+        provided_sent = str(produced_sent).replace('"', "'").replace(";", "&#59;")
+        sent_output += f'"{original_sent}";"{expected_sent}";"{provided_sent}"\n'
 
         print(sentence)
         # print(expected_detections)
         print(pipeline.last_initial_candidates())
         print(list(map(lambda x: (x[3], x[5]), lines)))
-        print(pipeline.last_selected_candidates_before_tie_break())
-        # print(pipeline.last_selected_candidate_with_target())
+        # print(pipeline.last_selected_candidates_before_tie_break())
+        print(pipeline.last_selected_candidate_with_target())
         # print(pipeline.last_active_filters())
 
         # print(pipeline.last_selected_candidates())
         print(f"precision {detection_accumulator.precision()}, recall {detection_accumulator.recall()}")
+        print(f"{str(detection_accumulator)}")
+        print(f"y only {str(detection_accumulator_y_only)}")
         # Note, this is a "conditional probability" stat -> !!! no i do not think it is???
         print(
             f"correct actors {n_correct_actor} / {n_inspected_actor} ({n_correct_actor / n_inspected_actor if n_inspected_actor > 0 else math.nan})")
@@ -298,10 +229,18 @@ def run_evaluation_2():
         print(
             f"correct initial candidates {n_initial_correct_candidate} / {n_inspected_actor} ({n_initial_correct_candidate / n_inspected_actor if n_inspected_actor > 0 else math.nan})"
         )
+
+        print(
+            f"clauses inspected {n_clauses_inspected}, n_clauses_inspected_where_chance {n_clauses_inspected_where_detection}, n_total_extracted_candidates {n_total_extracted_candidates}, n_clauses_inspected_where_detection_and_gs {n_clauses_inspected_where_detection_and_gs}"
+        )
+
         print("---")
 
     with open("./data/output/passive_problems.txt", "w+", encoding="utf-8") as out:
         out.write(passive_problems)
+
+    with open("./data/output/sent_output.txt", "w+", encoding="utf-8") as out:
+        out.write(sent_output)
 
         # for (source, original_sentence, _, gs_verb, _, gs_subj, gs_enhanced, *_) in lines:
         #     ctx = ctx_file.read()
@@ -310,6 +249,108 @@ def run_evaluation_2():
         #     # act_subjs = pipeline.last_selected_candidates()
         #
         #     print(pipeline.last_filter_log())
+
+
+def eval_insertion():
+    with open("./data/gold_standard/implicit/gold_standard.csv", 'r', encoding="utf-8") as file:
+        reader = csv.reader(file, delimiter=";")
+        grouped_by_sentence = defaultdict(list)
+        for line in list(reader)[233:]:
+            grouped_by_sentence[(line[0].strip(), line[1].strip())].append(line)
+
+    nlp = spacy.load("en_core_web_trf")
+
+    inserter = ImplicitSubjectInserterImpl()
+
+    out_sents = "source;expected;actual;equals\n"
+
+    for (_, sentence), lines in grouped_by_sentence.items():
+        if lines[0][2] != "y":
+            continue
+
+        doc = nlp(sentence)
+
+        expected = lines[0][6]
+
+        verbs = [x[3].split(" ")[0].lower() for x in lines if x[2] == "y"]
+        types = [_detection_type_from_str(x[4]) for x in lines if x[2] == "y"]
+
+        verb_tokens = []
+        # Single pass through document to select different tokens if two occurrences have the same orthography
+        i = 0
+        if verbs:
+            for t in doc:
+                if verbs[i] == t.text.lower():
+                    verb_tokens.append(t)
+                    i += 1
+                if i == len(verbs):
+                    break
+
+        if len(verb_tokens) != len(verbs):
+            print(f"Not all tokens found for sentence {sentence}, {verb_tokens}, {verbs}")
+            print(lines)
+            exit()
+
+        targets = [
+            ImplicitSubjectDetection(
+                type=t,
+                token=v,
+            ) for v, t in zip(verb_tokens, types)
+        ]
+
+        candidate_tokens = [nlp(x[5]) for x in lines if x[2] == "y"]
+
+        candidates = [
+            CandidateActor(
+                # Please note, this is not a great general approach, but I know
+                # from the implementation that an artificial token here should work fine
+                token=x[-1],
+                source=CandidateSource.DEFINITION if x[0].pos_ != "DET" else CandidateSource.ARTIFICIAL,
+            ) for x in candidate_tokens
+        ]
+
+        if len(candidates) != len(verbs):
+            print(f"Could not generate all necessary candidates for sentence {sentence}, {candidates}")
+
+        actual = inserter.insert(doc[:], targets, candidates)
+
+        print("-")
+        print(expected)
+        print(actual)
+        print("-")
+
+        expected_san = expected.replace("\n", " ").replace('"', "'")
+        actual_san = actual.replace("\n", " ").replace('"', "'")
+        out_sents += f'{lines[0][0]};"{expected_san}";"{actual_san}";{expected == actual}\n'
+
+    with open("./data/output/step_4_isolated.csv", "w+", encoding="utf-8") as f:
+        f.write(out_sents)
+
+        # print(
+        #     [list((t.text.lower().split(" ")[0], line[3]) for t in doc) for line in lines]
+        # )
+        #
+        # detections = [
+        #     ImplicitSubjectDetection(
+        #         type=_detection_type_from_str(line[5]),
+        #         token=next((t for t in doc if t.text.lower().split(" ")[0] == line[3]), None),
+        #     ) for line in lines if line[2] == "y"
+        # ]
+
+        # print(sentence, detections)
+
+        # print(detections)
+
+
+def _detection_type_from_str(detection_type: str) -> ImplicitSubjectType:
+    d = {
+        "passive": ImplicitSubjectType.PASSIVE,
+        "gerund": ImplicitSubjectType.GERUND,
+        "action_noun": ImplicitSubjectType.NOMINALIZED_VERB,
+        "imperative": ImplicitSubjectType.IMPERATIVE,
+        "infinitive": ImplicitSubjectType.IMPERATIVE,  # ?
+    }
+    return d[detection_type.strip().lower()]
 
 
 def subtract_lists(list1: List[str], list2: List[str]):

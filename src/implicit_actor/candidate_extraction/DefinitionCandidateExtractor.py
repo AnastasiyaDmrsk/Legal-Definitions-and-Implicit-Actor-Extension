@@ -27,5 +27,7 @@ class DefinitionCandidateExtractor(CandidateExtractor):
                 span = context[start:end]
                 yield from (CandidateActor(token=t, source=CandidateSource.DEFINITION) for t in span if
                             t.dep_ == "nsubj" and t.pos_ == "NOUN")
+                # yield from (CandidateActor(token=t, source=CandidateSource.DEFINITION) for t in span if
+                #             t.pos_ == "NOUN")
 
         return list(_matches())

@@ -49,6 +49,11 @@ class FormCELEX(forms.Form):
         choices=filters_form_options(),
         initial=filters_default_form_selection(),
     )
+    preamble = forms.BooleanField(
+        label="Extract Candidates From Preamble",
+        initial=False,
+        required=False,
+    )
 
 
 class FormDefinition(forms.Form):

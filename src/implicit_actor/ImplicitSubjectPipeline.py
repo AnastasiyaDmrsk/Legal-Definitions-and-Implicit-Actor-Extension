@@ -50,12 +50,13 @@ class ImplicitSubjectPipeline:
         self._verbose = verbose
         self._nlp = spacy.load("en_core_web_sm" if fast else "en_core_web_trf")
         self._last_detections = None
-        self._last_selected_candidates: Optional[List[CandidateActor]] = None
+        self._last_selected_candidates: Optional[List[CandidateActor]] = []
         self._last_selected_candidate_with_target: Optional[
-            List[Tuple[ImplicitSubjectDetection, CandidateActor]]] = None
+            List[Tuple[ImplicitSubjectDetection, CandidateActor]]] = []
         self._last_log = None
         self._last_initial_candidates: List[CandidateActor] = []
         self._last_candidates_before_tie_break: Dict[str, List[str]] = dict()
+        self._last_candidates_before_tie_break_root_only: Dict[str, List[str]] = dict()
         self._last_active_filters: List[str] = list()
 
     def last_active_filters(self) -> List[str]:
@@ -66,6 +67,9 @@ class ImplicitSubjectPipeline:
 
     def last_selected_candidates_before_tie_break(self) -> Dict[str, List[str]]:
         return self._last_candidates_before_tie_break
+
+    def last_selected_candidates_before_tie_break_root_only(self) -> Dict[str, List[str]]:
+        return self._last_candidates_before_tie_break_root_only
 
     def last_selected_candidates(self) -> Optional[List[CandidateActor]]:
         """
@@ -130,6 +134,9 @@ class ImplicitSubjectPipeline:
             self._last_candidates_before_tie_break[target.token.text] = list(
                 map(lambda x: get_noun_chunk(x.token).text, res)
             )
+            self._last_candidates_before_tie_break_root_only[target.token.text.lower()] = list(
+                map(lambda x: x.token.text, res)
+            )
             yield tok, log
 
     def apply(self, inspected_text: str, context: Optional[str] = None) -> str:
@@ -140,6 +147,7 @@ class ImplicitSubjectPipeline:
             context = inspected_text
 
         self._last_candidates_before_tie_break = dict()
+        self._last_candidates_before_tie_break_root_only = dict()
         self._last_selected_candidates = []
         self._last_active_filters = []
         self._last_initial_candidates = []

@@ -49,7 +49,8 @@ Territorial scope
 1.This Regulation applies to the processing of personal data in the context of the activities of an establishment of a
 controller or a processor in the Union, regardless of whether the processing takes place in the Union or not.
 
-4.5.2016 L 119/32 Official Journal of the European Union EN
+
+
 
 
 
@@ -107,10 +108,6 @@ on behalf of the controller;
 (9) ‘recipient’ means a natural or legal person, public authority, agency or another body, to which the personal data are
 disclosed, whether a third party or not. However, public authorities which may receive personal data in the
 
-4.5.2016 L 119/33 Official Journal of the European Union EN
-
-
-
 framework of a particular inquiry in accordance with Union or Member State law shall not be regarded as
 recipients; the processing of those data by those public authorities shall be in compliance with the applicable data
 protection rules according to the purposes of the processing;
@@ -130,8 +127,7 @@ unauthorised disclosure of, or access to, personal data transmitted, stored or o
 which give unique information about the physiology or the health of that natural person and which result, in
 particular, from an analysis of a biological sample from the natural person in question;
 
-(14)‘biometric data’ means personal data resulting from specific technical processing relating to the physical, physio­
-logical or behavioural characteristics of a natural person, which allow or confirm the unique identification of that
+(14) ‘biometric data’ means personal data resulting from specific technical processing relating to the physical, physiological or behavioural characteristics of a natural person, which allow or confirm the unique identification of that
 natural person, such as facial images or dactyloscopic data;
 
 (15) ‘data concerning health’ means personal data related to the physical or mental health of a natural person, including
@@ -167,10 +163,6 @@ joint economic activity;
 
 (21) ‘supervisory authority’ means an independent public authority which is established by a Member State pursuant to
 Article 51;
-
-4.5.2016 L 119/34 Official Journal of the European Union EN
-
-
 
 (22) ‘supervisory authority concerned’ means a supervisory authority which is concerned by the processing of personal
 data because:
@@ -229,7 +221,8 @@ minimisation’);
 are inaccurate, having regard to the purposes for which they are processed, are erased or rectified without delay
 (‘accuracy’);
 
-4.5.2016 L 119/35 Official Journal of the European Union EN
+
+
 
 (1)Directive (EU) 2015/1535 of the European Parliament and of the Council of 9 September 2015 laying down a procedure for the
 provision of information in the field of technical regulations and of rules on Information Society services (OJ L 241, 17.9.2015, p. 1).
@@ -293,7 +286,6 @@ types of data which are subject to the processing; the data subjects concerned; 
 which, the personal data may be disclosed; the purpose limitation; storage periods; and processing operations and
 processing procedures, including measures to ensure lawful and fair processing such as those for other specific
 
-4.5.2016 L 119/36 Official Journal of the European Union EN
 
 
 
@@ -352,9 +344,6 @@ by the holder of parental responsibility over the child.
 Member States may provide by law for a lower age for those purposes provided that such lower age is not below 13
 years.
 
-4.5.2016 L 119/37 Official Journal of the European Union EN
-
-
 
 2.The controller shall make reasonable efforts to verify in such cases that consent is given or authorised by the
 holder of parental responsibility over the child, taking into consideration available technology.
@@ -410,7 +399,8 @@ cross-border threats to health or ensuring high standards of quality and safety 
 products or medical devices, on the basis of Union or Member State law which provides for suitable and specific
 measures to safeguard the rights and freedoms of the data subject, in particular professional secrecy;
 
-4.5.2016 L 119/38 Official Journal of the European Union EN
+
+
 
 
 
@@ -469,7 +459,8 @@ specifically to a child. The information shall be provided in writing, or by oth
 electronic means. When requested by the data subject, the information may be provided orally, provided that the
 identity of the data subject is proven by other means.
 
-4.5.2016 L 119/39 Official Journal of the European Union EN
+
+
 
 
 
@@ -527,7 +518,8 @@ when personal data are obtained, provide the data subject with all of the follow
 
 (c)  the purposes of the processing for which the personal data are intended as well as the legal basis for the processing;
 
-4.5.2016 L 119/40 Official Journal of the European Union EN
+
+
 
 
 
@@ -588,7 +580,8 @@ with the following information:
 
 (e)  the recipients or categories of recipients of the personal data, if any;
 
-4.5.2016 L 119/41 Official Journal of the European Union EN
+
+
 
 
 
@@ -652,7 +645,8 @@ which provides appropriate measures to protect the data subject's legitimate int
 (d)  where the personal data must remain confidential subject to an obligation of professional secrecy regulated by Union
 or Member State law, including a statutory obligation of secrecy.
 
-4.5.2016 L 119/42 Official Journal of the European Union EN
+
+
 
 
 
@@ -718,7 +712,8 @@ one of the following grounds applies:
 (a)  the personal data are no longer necessary in relation to the purposes for which they were collected or otherwise
 processed;
 
-4.5.2016 L 119/43 Official Journal of the European Union EN
+
+
 
 
 
@@ -782,7 +777,8 @@ only be processed with the data subject's consent or for the establishment, exer
 protection of the rights of another natural or legal person or for reasons of important public interest of the Union or of
 a Member State.
 
-4.5.2016 L 119/44 Official Journal of the European Union EN
+
+
 
 
 
@@ -843,7 +839,8 @@ extent that it is related to such direct marketing.
 3.Where the data subject objects to processing for direct marketing purposes, the personal data shall no longer be
 processed for such purposes.
 
-4.5.2016 L 119/45 Official Journal of the European Union EN
+
+
 
 
 
@@ -903,7 +900,8 @@ a democratic society to safeguard:
 
 (c)  public security;
 
-4.5.2016 L 119/46 Official Journal of the European Union EN
+
+
 
 
 
@@ -970,7 +968,8 @@ implementation of appropriate data protection policies by the controller.
 referred to in Article 42 may be used as an element by which to demonstrate compliance with the obligations of the
 controller.
 
-4.5.2016 L 119/47 Official Journal of the European Union EN
+
+
 
 
 
@@ -1027,7 +1026,8 @@ context, scope and purposes of the processing; or
 
 (b)  a public authority or body.
 
-4.5.2016 L 119/48 Official Journal of the European Union EN
+
+
 
 
 
@@ -1087,7 +1087,8 @@ the personal data;
 down in this Article and allow for and contribute to audits, including inspections, conducted by the controller or
 another auditor mandated by the controller.
 
-4.5.2016 L 119/49 Official Journal of the European Union EN
+
+
 
 
 
@@ -1145,7 +1146,8 @@ tive and the data protection officer;
 
 (c)  a description of the categories of data subjects and of the categories of personal data;
 
-4.5.2016 L 119/50 Official Journal of the European Union EN
+
+
 
 
 
@@ -1208,7 +1210,8 @@ security appropriate to the risk, including inter alia as appropriate:
 
 (a)  the pseudonymisation and encryption of personal data;
 
-4.5.2016 L 119/51 Official Journal of the European Union EN
+
+
 
 
 
@@ -1272,7 +1275,8 @@ Communication of a personal data breach to the data subject
 1.When the personal data breach is likely to result in a high risk to the rights and freedoms of natural persons, the
 controller shall communicate the personal data breach to the data subject without undue delay.
 
-4.5.2016 L 119/52 Official Journal of the European Union EN
+
+
 
 
 
@@ -1337,7 +1341,8 @@ apply the consistency mechanism referred to in Article 63 where such lists invol
 related to the offering of goods or services to data subjects or to the monitoring of their behaviour in several
 Member States, or may substantially affect the free movement of personal data within the Union.
 
-4.5.2016 L 119/53 Official Journal of the European Union EN
+
+
 
 
 
@@ -1402,7 +1407,8 @@ Regulation;
 
 (d)  where applicable, the contact details of the data protection officer;
 
-4.5.2016 L 119/54 Official Journal of the European Union EN
+
+
 
 
 
@@ -1464,7 +1470,8 @@ Position of the data protection officer
 1.The controller and the processor shall ensure that the data protection officer is involved, properly and in a timely
 manner, in all issues which relate to the protection of personal data.
 
-4.5.2016 L 119/55 Official Journal of the European Union EN
+
+
 
 
 
@@ -1527,7 +1534,8 @@ or amend or extend such codes, for the purpose of specifying the application of 
 
 (a)  fair and transparent processing;
 
-4.5.2016 L 119/56 Official Journal of the European Union EN
+
+
 
 
 
@@ -1592,7 +1600,8 @@ submit its opinion to the Commission.
 extension submitted to it pursuant to paragraph 8 of this Article have general validity within the Union. Those
 implementing acts shall be adopted in accordance with the examination procedure set out in Article 93(2).
 
-4.5.2016 L 119/57 Official Journal of the European Union EN
+
+
 
 
 
@@ -1650,7 +1659,8 @@ Union level, the establishment of data protection certification mechanisms and o
 the purpose of demonstrating compliance with this Regulation of processing operations by controllers and processors.
 The specific needs of micro, small and medium-sized enterprises shall be taken into account.
 
-4.5.2016 L 119/58 Official Journal of the European Union EN
+
+
 
 
 
@@ -1707,7 +1717,8 @@ they have:
 (a)  demonstrated their independence and expertise in relation to the subject-matter of the certification to the
 satisfaction of the competent supervisory authority;
 
-4.5.2016 L 119/59 Official Journal of the European Union EN
+
+
 
 (1)Regulation (EC) No 765/2008 of the European Parliament and of the Council of 9 July 2008 setting out the requirements for accredi­
 tation and market surveillance relating to the marketing of products and repealing Regulation (EEC) No 339/93 (OJ L 218, 13.8.2008,
@@ -1775,7 +1786,8 @@ of personal data from the third country or an international organisation to anot
 ional organisation. All provisions in this Chapter shall be applied in order to ensure that the level of protection of
 natural persons guaranteed by this Regulation is not undermined.
 
-4.5.2016 L 119/60 Official Journal of the European Union EN
+
+
 
 
 
@@ -1842,7 +1854,8 @@ question pursuant to Articles 46 to 49.
 countries, territories and specified sectors within a third country and international organisations for which it has decided
 that an adequate level of protection is or is no longer ensured.
 
-4.5.2016 L 119/61 Official Journal of the European Union EN
+
+
 
 
 
@@ -1906,7 +1919,8 @@ mechanism set out in Article 63, provided that they:
 (a)  are legally binding and apply to and are enforced by every member concerned of the group of undertakings, or
 group of enterprises engaged in a joint economic activity, including their employees;
 
-4.5.2016 L 119/62 Official Journal of the European Union EN
+
+
 
 
 
@@ -1969,7 +1983,8 @@ which are likely to have a substantial adverse effect on the guarantees provided
 
 (n)  the appropriate data protection training to personnel having permanent or regular access to personal data.
 
-4.5.2016 L 119/63 Official Journal of the European Union EN
+
+
 
 
 
@@ -2030,7 +2045,8 @@ personal data or entire categories of the personal data contained in the registe
 consultation by persons having a legitimate interest, the transfer shall be made only at the request of those persons or if
 they are to be the recipients.
 
-4.5.2016 L 119/64 Official Journal of the European Union EN
+
+
 
 
 
@@ -2094,7 +2110,8 @@ compliance by the other authorities with the rules relating to the consistency m
 4.Each Member State shall notify to the Commission the provisions of its law which it adopts pursuant to this
 Chapter, by 25 May 2018 and, without delay, any subsequent amendment affecting them.
 
-4.5.2016 L 119/65 Official Journal of the European Union EN
+
+
 
 
 
@@ -2156,7 +2173,8 @@ Rules on the establishment of the supervisory authority
 
 (a)  the establishment of each supervisory authority;
 
-4.5.2016 L 119/66 Official Journal of the European Union EN
+
+
 
 
 
@@ -2217,7 +2235,8 @@ authority shall decide whether or not it will handle the case in accordance with
 taking into account whether or not there is an establishment of the controller or processor in the Member State of
 which the supervisory authority informed it.
 
-4.5.2016 L 119/67 Official Journal of the European Union EN
+
+
 
 
 
@@ -2281,7 +2300,8 @@ pursuant to Article 42(1), and approve the criteria of certification pursuant to
 
 (o)  where applicable, carry out a periodic review of certifications issued in accordance with Article 42(7);
 
-4.5.2016 L 119/68 Official Journal of the European Union EN
+
+
 
 
 
@@ -2346,7 +2366,8 @@ Regulation;
 (c)  to order the controller or the processor to comply with the data subject's requests to exercise his or her rights
 pursuant to this Regulation;
 
-4.5.2016 L 119/69 Official Journal of the European Union EN
+
+
 
 
 
@@ -2415,7 +2436,8 @@ infringement notified and types of measures taken in accordance with Article 58(
 to the national parliament, the government and other authorities as designated by Member State law. They shall be made
 available to the public, to the Commission and to the Board.
 
-4.5.2016 L 119/70 Official Journal of the European Union EN
+
+
 
 
 
@@ -2482,7 +2504,8 @@ activities in the context of all its establishments in the Union. The controller
 taken for complying with the decision to the lead supervisory authority, which shall inform the other supervisory
 authorities concerned.
 
-4.5.2016 L 119/71 Official Journal of the European Union EN
+
+
 
 
 
@@ -2547,7 +2570,8 @@ Joint operations of supervisory authorities
 joint enforcement measures in which members or staff of the supervisory authorities of other Member States are
 involved.
 
-4.5.2016 L 119/72 Official Journal of the European Union EN
+
+
 
 
 
@@ -2612,7 +2636,8 @@ pursuant to Article 35(4);
 (b)  concerns a matter pursuant to Article 40(7) whether a draft code of conduct or an amendment or extension to a
 code of conduct complies with this Regulation;
 
-4.5.2016 L 119/73 Official Journal of the European Union EN
+
+
 
 
 
@@ -2674,7 +2699,8 @@ objection to a draft decision of the lead authority or the lead authority has re
 relevant or reasoned. The binding decision shall concern all the matters which are the subject of the relevant and
 reasoned objection, in particular whether there is an infringement of this Regulation;
 
-4.5.2016 L 119/74 Official Journal of the European Union EN
+
+
 
 
 
@@ -2735,7 +2761,8 @@ opinion or decision, including for the urgent need to act.
 4.By derogation from Article 64(3) and Article 65(2), an urgent opinion or an urgent binding decision referred to in
 paragraphs 2 and 3 of this Article shall be adopted within two weeks by simple majority of the members of the Board.
 
-4.5.2016 L 119/75 Official Journal of the European Union EN
+
+
 
 
 
@@ -2798,7 +2825,8 @@ initiative or, where relevant, at the request of the Commission, in particular:
 (a)  monitor and ensure the correct application of this Regulation in the cases provided for in Articles 64 and 65
 without prejudice to the tasks of national supervisory authorities;
 
-4.5.2016 L 119/76 Official Journal of the European Union EN
+
+
 
 
 
@@ -2864,7 +2892,8 @@ level of protection. To that end, the Commission shall provide the Board with al
 including correspondence with the government of the third country, with regard to that third country, territory or
 specified sector, or with the international organisation.
 
-4.5.2016 L 119/77 Official Journal of the European Union EN
+
+
 
 
 
@@ -2925,7 +2954,8 @@ Chair
 
 2.The term of office of the Chair and of the deputy chairs shall be five years and be renewable once.
 
-4.5.2016 L 119/78 Official Journal of the European Union EN
+
+
 
 
 
@@ -2988,7 +3018,8 @@ Confidentiality
 1.The discussions of the Board shall be confidential where the Board deems it necessary, as provided for in its rules
 of procedure.
 
-4.5.2016 L 119/79 Official Journal of the European Union EN
+
+
 
 
 
@@ -3044,7 +3075,8 @@ controller or processor has an establishment. Alternatively, such proceedings ma
 Member State where the data subject has his or her habitual residence, unless the controller or processor is a public
 authority of a Member State acting in the exercise of its public powers.
 
-4.5.2016 L 119/80 Official Journal of the European Union EN
+
+
 
 (1)Regulation (EC) No 1049/2001 of the European Parliament and of the Council of 30 May 2001 regarding public access to European
 Parliament, Council and Commission documents (OJ L 145, 31.5.2001, p. 43).
@@ -3108,7 +3140,8 @@ suffered, that controller or processor shall be entitled to claim back from the 
 the same processing that part of the compensation corresponding to their part of responsibility for the damage, in
 accordance with the conditions set out in paragraph 2.
 
-4.5.2016 L 119/81 Official Journal of the European Union EN
+
+
 
 
 
@@ -3171,7 +3204,8 @@ preceding financial year, whichever is higher:
 
 (c)  the obligations of the monitoring body pursuant to Article 41(4).
 
-4.5.2016 L 119/82 Official Journal of the European Union EN
+
+
 
 
 
@@ -3233,7 +3267,8 @@ Processing and freedom of expression and information
 the right to freedom of expression and information, including processing for journalistic purposes and the purposes of
 academic, artistic or literary expression.
 
-4.5.2016 L 119/83 Official Journal of the European Union EN
+
+
 
 
 
@@ -3294,7 +3329,8 @@ scientific or historical research purposes or statistical purposes
 purposes, shall be subject to appropriate safeguards, in accordance with this Regulation, for the rights and freedoms of
 the data subject. Those safeguards shall ensure that technical and organisational measures are in place in particular in
 
-4.5.2016 L 119/84 Official Journal of the European Union EN
+
+
 
 
 
@@ -3354,7 +3390,8 @@ Exercise of the delegation
 1.The power to adopt delegated acts is conferred on the Commission subject to the conditions laid down in this
 Article.
 
-4.5.2016 L 119/85 Official Journal of the European Union EN
+
+
 
 
 
@@ -3411,7 +3448,8 @@ connection with the provision of publicly available electronic communications se
 networks in the Union in relation to matters for which they are subject to specific obligations with the same objective
 set out in Directive 2002/58/EC.
 
-4.5.2016 L 119/86 Official Journal of the European Union EN
+
+
 
 
 
