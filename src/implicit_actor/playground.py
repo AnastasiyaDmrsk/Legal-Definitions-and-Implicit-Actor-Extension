@@ -20,7 +20,7 @@ from implicit_actor.candidate_filtering.PreviouslyMentionedRelationFilter import
 from implicit_actor.candidate_filtering.SynsetFilter import SynsetFilter
 from implicit_actor.evaluation.ClassificationStatisticsAccumulator import ClassificationStatisticsAccumulator
 from implicit_actor.evaluation.FitlerFailAccumulator import FilterFailAccumulator
-from implicit_actor.evaluation.util import run_evaluation_2, eval_insertion
+from implicit_actor.evaluation.util import run_evaluation, eval_insertion
 from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
 from implicit_actor.missing_subject_detection.GerundDetector import GerundDetector
 from implicit_actor.missing_subject_detection.ImperativeDetector import ImperativeDetector
@@ -157,8 +157,8 @@ def main():
     # with open("./data/external/en-verbs.txt", 'r', encoding="utf-8") as wf:
     #     verbs = {y for x in wf.readlines() if not x.startswith(";") for y in (x.split(",")[0], x.split(",")[5])}
 
-    run_evaluation_2()
     # eval_insertion()
+    run_evaluation()
 
     # Stats(profile).sort_stats(SortKey.CUMULATIVE).print_stats()
 

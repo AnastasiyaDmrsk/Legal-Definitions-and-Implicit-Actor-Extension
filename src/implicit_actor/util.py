@@ -116,20 +116,6 @@ def get_noun_chunk(token: Token) -> Span:
     return token.doc[token.i: token.i + 1]
 
 
-def load_gold_standard(file_name='./data/evaluation/gold_standard.csv') -> Iterable[
-    Tuple[str, str, str, List[str], List[str]]]:
-    """
-    Loads the gold standard.
-    """
-    with open(file_name, 'r', encoding="utf-8") as file:
-        reader = csv.reader(file)
-        next(reader, None)
-        for source, inp, gs, impl_subject, target in reader:
-            with open(f"./data/external{source}", 'r', encoding="utf-8") as source_file:
-                source_txt = source_file.read().replace("\n", " ").replace("  ", " ")
-            yield source_txt, inp, gs, json.loads(impl_subject), json.loads(target)
-
-
 def search_for_head(tok: Token):
     """
     Used to find the predicate of an object/subject.

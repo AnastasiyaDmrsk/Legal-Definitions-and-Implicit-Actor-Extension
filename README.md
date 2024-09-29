@@ -1,5 +1,4 @@
-# Identification and Visualization of Explicit and Implicit
-Legal Information from European Regulations
+# Identification and Visualization of Explicit and Implicit Legal Information from European Regulations
 
 ## Installation
 ***
@@ -23,7 +22,11 @@ cd src
 ```bash
 pip install -r requirements.txt
 ```
-6. Run the server (locally)
+6. Run the web server (locally)
 ```bash
 python main.py runserver
 ```
+
+## Implicit Actors
+Whenever running any script, please make sure your working directory is set to ``./src``.
+You can find a dummy example pipeline setup in `./src/implicit_actor/main.py`

@@ -24,14 +24,14 @@ from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import Im
     ImplicitSubjectType
 from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
 from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDetector
+from implicit_actor.util import get_noun_chunk
 
 
-def run_evaluation_2():
+def run_evaluation():
     # TODO clean up
 
     definition_candidate_inserter = ImplicitSubjectInserterImpl()
 
-    # TODO show second most likely candidate on hover over candidate
     pipeline = ImplicitSubjectPipeline(
         missing_subject_detectors=[
             PassiveDetector(),
@@ -66,7 +66,7 @@ def run_evaluation_2():
         missing_subject_inserter=definition_candidate_inserter,
         candidate_extractor=ComposedCandidateExtractor([
             DefinitionCandidateExtractor(),
-            PreambleExtractor(),
+            # PreambleExtractor(),
             # SubjectObjectCandidateExtractor(),
         ]),
         verbose=False
@@ -105,11 +105,12 @@ def run_evaluation_2():
 
     passive_problems = ""
     sent_output = ""
+    filter_output = ""
 
     with open("./data/gold_standard/implicit/gold_standard_new.csv", 'r', encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=";")
         grouped_by_sentence = defaultdict(list)
-        for line in list(reader)[1:232]:
+        for line in list(reader)[232:]:
             print(line)
             grouped_by_sentence[(line[0].strip(), line[1].strip())].append(line)
 
@@ -132,7 +133,19 @@ def run_evaluation_2():
         produced_sent = pipeline.apply(sentence, ctx)
         n_clauses_inspected += 1
         n_total_extracted_candidates += len(pipeline.last_initial_candidates())
-        print(pipeline.last_initial_candidates())
+
+        filter_output += f'"{sentence}"'
+        for target, target_logs in pipeline.last_filter_log():
+            filter_output += f';"{get_noun_chunk(target.token)}"'
+            for applied_filter, target_log in target_logs:
+                raw = f';"after {applied_filter.__class__.__name__ if applied_filter is not None else "Initial"}: {list(get_noun_chunk(x.token) for x in target_log)}"'
+                filter_output += raw.replace("\n", " ")
+        filter_output += "\n"
+
+        print([
+            (get_noun_chunk(x.token), x) for x in pipeline.last_initial_candidates()
+        ])
+
         if pipeline.last_detections():
             n_clauses_inspected_where_detection += 1
 
@@ -236,11 +249,14 @@ def run_evaluation_2():
 
         print("---")
 
-    with open("./data/output/passive_problems.txt", "w+", encoding="utf-8") as out:
+    with open("./data/output/passive_problems.csv", "w+", encoding="utf-8") as out:
         out.write(passive_problems)
 
-    with open("./data/output/sent_output.txt", "w+", encoding="utf-8") as out:
+    with open("./data/output/sent_output.csv", "w+", encoding="utf-8") as out:
         out.write(sent_output)
+
+    with open("./data/output/filter_output.csv", "w+", encoding="utf-8") as out:
+        out.write(filter_output)
 
         # for (source, original_sentence, _, gs_verb, _, gs_subj, gs_enhanced, *_) in lines:
         #     ctx = ctx_file.read()
@@ -252,10 +268,10 @@ def run_evaluation_2():
 
 
 def eval_insertion():
-    with open("./data/gold_standard/implicit/gold_standard.csv", 'r', encoding="utf-8") as file:
+    with open("./data/gold_standard/implicit/gold_standard_new.csv", 'r', encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=";")
         grouped_by_sentence = defaultdict(list)
-        for line in list(reader)[233:]:
+        for line in list(reader)[1:]:
             grouped_by_sentence[(line[0].strip(), line[1].strip())].append(line)
 
     nlp = spacy.load("en_core_web_trf")
