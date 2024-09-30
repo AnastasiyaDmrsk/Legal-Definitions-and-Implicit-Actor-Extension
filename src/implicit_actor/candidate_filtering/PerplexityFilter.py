@@ -34,8 +34,8 @@ class PerplexityFilter(CandidateFilter):
         if not candidates:
             return []
 
-        input_texts = [str(target.token.sent)] + [
-            self._missing_subject_inserter.insert(target.token.sent, [target], [x]) for x in
+        input_texts = [str(target.token.sent)[:1024]] + [
+            self._missing_subject_inserter.insert(target.token.sent, [target], [x])[:1024] for x in
             candidates
         ]
 

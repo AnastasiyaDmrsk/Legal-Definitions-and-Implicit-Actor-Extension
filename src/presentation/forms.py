@@ -4,7 +4,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from explicit_information.definitions import get_dictionary
-from implicit_actor.implicit_subject_pipeline_factory import filters_form_options, filters_default_form_selection
+from implicit_actor.implicit_subject_pipeline_factory import filters_form_options, filters_default_form_selection, \
+    detectors_form_options, detectors_default_form_selection
 
 
 # documentation how CELEX is identified: https://eur-lex.europa.eu/content/tools/eur-lex-celex-infographic-A3.pdf
@@ -53,6 +54,12 @@ class FormCELEX(forms.Form):
         label="Extract Candidates From Preamble",
         initial=False,
         required=False,
+    )
+    detectors = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        label="Detectors",
+        choices=detectors_form_options(),
+        initial=detectors_default_form_selection(),
     )
 
 

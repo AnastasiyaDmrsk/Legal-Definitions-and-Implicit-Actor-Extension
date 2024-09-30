@@ -45,7 +45,8 @@ def index(request):
             global celex
             celex = form.cleaned_data['number']
             global pipeline
-            pipeline = create_implicit_subject_pipeline(form.cleaned_data['filters'], form.cleaned_data['preamble'])
+            pipeline = create_implicit_subject_pipeline(form.cleaned_data['filters'], form.cleaned_data['preamble'],
+                                                        form.cleaned_data['detectors'])
             global site
             site = load_document(celex)
             return HttpResponseRedirect('result/')
@@ -71,7 +72,7 @@ def result(request):
     create_bar_chart(most_frequent_definitions(), 'presentation/static/top.png', 'Definitions', '# of hits',
                      'Top Most Frequent Definitions')
     create_bar_chart(dict(implicit_actor_counter.most_common(5)), 'presentation/static/implicit_actor_frequency.png',
-                     'Implicit Actors', '# of hits', 'Frequency Diagram')
+                     'Implicit Actors', '# of hits', 'Most Common Implicit Actors')
 
     context_dict = {'site': site, 'celex': celex, 'definitions': definitions,
                     'num_def': len(annotations.keys()),
@@ -107,7 +108,7 @@ def graph(request):
                 construct_relation_graph(get_hyponymy(), defin, current_def, image_path)
 
             create_bar_chart(get_freq_dict(current_def), definition_frequency_image_path, 'Articles', '# of hits',
-                             'Frequency Diagram')
+                             'Implicit Actor Occurrences')
 
             return render(request, 'html',
                           {'form': form, 'definitions': defin, 'image_path': 'src/graph.png',
@@ -142,7 +143,6 @@ def extract_text(url):
 
     implicit_actor_counter.clear()
 
-    # TODO refactor
     soup.smooth()
     context = definitions_article.get_text()
     for article in soup.find_all('div', id=lambda x: x and div_re.fullmatch(x)):
@@ -157,7 +157,6 @@ def extract_text(url):
             paragraph.clear()
             paragraph.append(new_html)
     soup.smooth()
-
 
     global done_date
     done_date = soup.find(string=re.compile("Done at"))
@@ -349,7 +348,7 @@ def download_definitions_file(request):
     with open("presentation/output/file.txt", "w", encoding="utf-8") as file:
         for key, value in annotations.items():
             file.write(key + " " + value + "\n")
-    response = FileResponse(open("presentation/output/file.txt", 'rb', encoding="utf-8"))
+    response = FileResponse(open("presentation/output/file.txt", 'rb'))
     response['Content-Disposition'] = 'attachment; filename="file.txt"'
     return response
 

@@ -22,6 +22,7 @@ from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubject
 from implicit_actor.insertion.SpecializedInserter import InsertionContext
 from implicit_actor.missing_subject_detection.GerundDetector import GerundDetector
 from implicit_actor.missing_subject_detection.ImperativeDetector import ImperativeDetector
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
 from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
 from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDetector
 
@@ -39,7 +40,9 @@ _filter_options = [
     ("Proximity Filter", ProximityFilter.__name__, ProximityFilter()),
     ("Previously MentionedRelation Filter", PreviouslyMentionedRelationFilter.__name__,
      PreviouslyMentionedRelationFilter()),
-    ("Perplexity Filter", PerplexityFilter.__name__, PerplexityFilter(max_returned=10000)),
+    (
+        "Perplexity Filter (Warning, may lead to long execution times)",
+        PerplexityFilter.__name__, PerplexityFilter(max_returned=10000)),
 ]
 
 _default_filter_selection = [
@@ -51,12 +54,31 @@ _default_filter_selection = [
     PerplexityFilter.__name__,
 ]
 
+_detector_options = [
+    ("Passive Detector", PassiveDetector.__name__, PassiveDetector()),
+    ("Gerund Detector", GerundDetector.__name__, GerundDetector()),
+    ("Gerundive Nominal Detector", NominalizedGerundWordlistDetector.__name__, NominalizedGerundWordlistDetector()),
+    ("Imperative Detector", ImperativeDetector.__name__, ImperativeDetector()),
+]
+
+_default_detector_options = [
+    PassiveDetector.__name__,
+    NominalizedGerundWordlistDetector.__name__,
+]
+
 
 def filters_default_form_selection():
     """
     Provides a default selection for filters
     """
     return _default_filter_selection
+
+
+def detectors_default_form_selection():
+    """
+    Provides a default selection for detectors
+    """
+    return _default_detector_options
 
 
 def filters_form_options():
@@ -66,27 +88,33 @@ def filters_form_options():
     return map(lambda x: (x[1], x[0]), _filter_options)
 
 
+def detectors_form_options():
+    return map(lambda x: (x[1], x[0]), _detector_options)
+
+
 def implicit_subject_pipeline_from_form(
         selected: List[str]
 ) -> Iterator[CandidateFilter]:
-    for candidate in selected:
-        for f in _filter_options:
-            if f[1] == candidate:
-                yield f[2]
+    for f in _filter_options:
+        if f[1] in selected:
+            yield f[2]
+
+
+def implicit_subject_pipeline_detectors_from_form(
+        selected: List[str]
+) -> Iterator[ImplicitSubjectDetector]:
+    for f in _detector_options:
+        if f[1] in selected:
+            yield f[2]
 
 
 def create_implicit_subject_pipeline(
         selected_filters: List[str],
         add_preamble_extraction: bool,
+        selected_detectors: List[str],
 ) -> ImplicitSubjectPipeline:
     return ImplicitSubjectPipeline(
-        missing_subject_detectors=[
-            PassiveDetector(),
-            ImperativeDetector(),
-            GerundDetector(),
-            NominalizedGerundWordlistDetector(),
-            # NounVerbStemDetector(),
-        ],
+        missing_subject_detectors=list(implicit_subject_pipeline_detectors_from_form(selected_detectors)),
         candidate_filters=list(implicit_subject_pipeline_from_form(selected_filters)),
         missing_subject_inserter=ImplicitSubjectInserterImpl(
             inserters=[
