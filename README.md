@@ -7,7 +7,7 @@
 1. Clone a remote repository
 
 ```bash
-git clone https://anonymous.4open.science/r/Legal-Definitions-and-Implicit-Actor-Extension-FD6D/README.md
+git clone https://anonymous.4open.science/r/Legal-Definitions-and-Implicit-Actor-Extension-82F3/README.md
 ```
 
 2. Go into the project directory
