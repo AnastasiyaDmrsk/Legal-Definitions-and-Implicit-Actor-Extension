@@ -2,9 +2,9 @@ from typing import List
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
-from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
-from src.implicit_actor.util import search_for_head_block_nouns, OBJ_DEPS, SUBJ_DEPS
+from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.util import search_for_head_block_nouns, OBJ_DEPS, SUBJ_DEPS
 
 
 class DependentOfSameSentenceFilter(CandidateFilter):

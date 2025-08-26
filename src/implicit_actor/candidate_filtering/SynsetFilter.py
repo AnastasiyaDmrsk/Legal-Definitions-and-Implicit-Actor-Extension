@@ -6,8 +6,8 @@ from spacy.tokens import Token
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
 from implicit_actor.util import OBJ_DEPS
-from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 def _get_definition_objects_from_head(token: Token) -> List[Token]:

@@ -3,7 +3,7 @@ from typing import List
 
 from spacy.tokens import Doc, Span
 
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 class ImplicitSubjectDetector(ABC):

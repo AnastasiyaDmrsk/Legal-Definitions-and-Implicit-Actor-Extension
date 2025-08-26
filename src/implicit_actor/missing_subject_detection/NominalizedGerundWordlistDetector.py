@@ -2,8 +2,8 @@ from typing import List
 
 from spacy.tokens import Span
 
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
 
 
 class NominalizedGerundWordlistDetector(ImplicitSubjectDetector):

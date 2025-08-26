@@ -1,4 +1,4 @@
-from typing import Iterable, LiteralString, Tuple, List
+from typing import Iterable, Tuple, List
 
 
 class TokenList(Iterable[str]):

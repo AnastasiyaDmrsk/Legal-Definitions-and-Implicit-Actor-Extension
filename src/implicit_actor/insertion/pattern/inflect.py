@@ -25,7 +25,7 @@ from builtins import map
 from builtins import range
 from builtins import str, int
 
-from src.implicit_actor.insertion.pattern.inflect_global import Verbs as _Verbs
+from implicit_actor.insertion.pattern.inflect_global import Verbs as _Verbs
 
 sys.path.pop(0)
 

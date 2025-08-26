@@ -4,10 +4,10 @@ import spacy
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
-from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
-from src.implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
-from src.implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
+from implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
+from implicit_actor.insertion.ImplicitSubjectInserterImpl import ImplicitSubjectInserterImpl
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 # TODO figure out how to make this work

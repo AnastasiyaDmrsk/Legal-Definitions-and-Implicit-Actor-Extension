@@ -6,8 +6,8 @@ from spacy.tokens import Token, Span
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
-from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 class CandidateTextOccurrenceFilter(CandidateFilter):

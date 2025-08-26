@@ -3,8 +3,8 @@ from typing import List
 from spacy.tokens import Doc
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor, CandidateSource
-from src.implicit_actor.candidate_extraction.CandidateExtractor import CandidateExtractor
-from src.implicit_actor.util import OBJ_DEPS, SUBJ_DEPS
+from implicit_actor.candidate_extraction.CandidateExtractor import CandidateExtractor
+from implicit_actor.util import OBJ_DEPS, SUBJ_DEPS
 
 
 class SubjectObjectCandidateExtractor(CandidateExtractor):

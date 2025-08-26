@@ -4,10 +4,10 @@ from spacy.tokens import Span
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.insertion.TokenList import TokenList
-from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
-from src.implicit_actor.insertion.pattern.inflect import conjugate
-from src.implicit_actor.insertion.pattern.inflect_global import PRESENT, SINGULAR
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
+from implicit_actor.insertion.SpecializedInserter import SpecializedInserter, InsertionContext
+from implicit_actor.insertion.pattern.inflect import conjugate
+from implicit_actor.insertion.pattern.inflect_global import PRESENT, SINGULAR
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
     ImplicitSubjectType
 
 

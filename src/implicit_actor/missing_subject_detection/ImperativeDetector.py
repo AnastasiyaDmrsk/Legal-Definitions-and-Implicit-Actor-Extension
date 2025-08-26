@@ -2,9 +2,9 @@ from typing import List
 
 from spacy.tokens import Token, Span
 
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
-from src.implicit_actor.util import AUX_DEPS, find_conj_head
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, ImplicitSubjectType
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
+from implicit_actor.util import AUX_DEPS, find_conj_head
 
 
 class ImperativeDetector(ImplicitSubjectDetector):

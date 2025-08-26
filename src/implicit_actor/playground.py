@@ -40,8 +40,8 @@ from implicit_actor.missing_subject_detection.PassiveDetector import PassiveDete
 # from nltk.stem import PorterStemmer
 # from spacy import displacy
 
-# from src.implicit_actor.insertion.pattern.inflect import lexeme
-# from src.implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
+# from implicit_actor.insertion.pattern.inflect import lexeme
+# from implicit_actor.missing_subject_detection.NominalizedGerundWordlistDetector import NominalizedGerundWordlistDetector
 
 
 from nltk.corpus import wordnet as wn

@@ -26,11 +26,11 @@ from itertools import chain
 from collections import defaultdict
 from math import log, sqrt
 
-from src.implicit_actor.insertion.pattern.tree import Tree, Text, Sentence, Word, table, WORD, POS, CHUNK, PNP
+from implicit_actor.insertion.pattern.tree import Tree, Text, Sentence, Word, table, WORD, POS, CHUNK, PNP
 
 DEFAULT = "default"
 
-from src.implicit_actor.insertion.pattern.helpers import encode_string, decode_string
+from implicit_actor.insertion.pattern.helpers import encode_string, decode_string
 
 decode_utf8 = decode_string
 encode_utf8 = encode_string

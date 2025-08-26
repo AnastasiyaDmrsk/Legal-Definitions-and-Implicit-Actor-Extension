@@ -6,9 +6,9 @@ from spacy.tokens import Token, Span
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor, CandidateSource
 from implicit_actor.insertion.TokenList import TokenList
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
     ImplicitSubjectType
-from src.implicit_actor.util import get_noun_chunk
+from implicit_actor.util import get_noun_chunk
 
 
 @dataclasses.dataclass()

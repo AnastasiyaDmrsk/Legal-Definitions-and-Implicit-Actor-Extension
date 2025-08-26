@@ -4,7 +4,7 @@ from typing import List
 from spacy.tokens import Span, Token
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 class ImplicitSubjectInserter(ABC):

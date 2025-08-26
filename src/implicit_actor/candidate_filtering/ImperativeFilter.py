@@ -4,8 +4,8 @@ from spacy.lang.en import English
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor, CandidateSource
 from implicit_actor.candidate_filtering.FilterContext import FilterContext
-from src.implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectType, \
+from implicit_actor.candidate_filtering.CandidateFilter import CandidateFilter
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectType, \
     ImplicitSubjectDetection
 
 

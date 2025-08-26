@@ -1,1 +1,4 @@
 .idea
+/.venv/
+/.venv_w/
+/.venv_w_3_10/

@@ -4,12 +4,12 @@ from spacy.tokens import Span, Token
 
 from implicit_actor.candidate_extraction.CandidateActor import CandidateActor
 from implicit_actor.insertion.TokenList import TokenList
-from src.implicit_actor.insertion.DefaultInserter import DefaultInserter
-from src.implicit_actor.insertion.GerundInserter import GerundInserter
-from src.implicit_actor.insertion.ImperativeInserter import ImperativeInserter
-from src.implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
-from src.implicit_actor.insertion.SpecializedInserter import SpecializedInserter
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
+from implicit_actor.insertion.DefaultInserter import DefaultInserter
+from implicit_actor.insertion.GerundInserter import GerundInserter
+from implicit_actor.insertion.ImperativeInserter import ImperativeInserter
+from implicit_actor.insertion.ImplicitSubjectInserter import ImplicitSubjectInserter
+from implicit_actor.insertion.SpecializedInserter import SpecializedInserter
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection
 
 
 class ImplicitSubjectInserterImpl(ImplicitSubjectInserter):

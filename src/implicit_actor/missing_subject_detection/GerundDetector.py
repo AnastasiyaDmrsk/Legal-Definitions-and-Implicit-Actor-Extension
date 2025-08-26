@@ -2,10 +2,10 @@ from typing import List
 
 from spacy.tokens import Span
 
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetection import ImplicitSubjectDetection, \
     ImplicitSubjectType
-from src.implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
-from src.implicit_actor.util import has_explicit_subject
+from implicit_actor.missing_subject_detection.ImplicitSubjectDetector import ImplicitSubjectDetector
+from implicit_actor.util import has_explicit_subject
 
 
 class GerundDetector(ImplicitSubjectDetector):
