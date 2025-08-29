@@ -10,8 +10,8 @@ from django.http import FileResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from explicit_information.definitions import find_definitions, get_annotations, \
-    any_definition_in_text, get_dictionary, check_more_definitions_in_text, find_definitions_2
+from explicit_information.definitions import get_annotations, \
+    any_definition_in_text, get_dictionary, find_definitions_2
 from explicit_information.relations import noun_relations, build_tree, get_hyponymy, get_meronymy, get_synonymy
 from implicit_actor.ImplicitSubjectPipeline import ImplicitSubjectPipeline
 from implicit_actor.implicit_subject_pipeline_factory import create_implicit_subject_pipeline

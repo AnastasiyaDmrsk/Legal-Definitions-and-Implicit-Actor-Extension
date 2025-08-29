@@ -22,22 +22,22 @@ cd Legal-Definitions-and-their-Relations
 git pull
 ```
 
-4. Go into the src directory
-
-```bash
-cd src
-```
-
-5. Install all project dependencies with the help of the package manager [pip](https://pip.pypa.io/en/stable/)
+4. Install all project dependencies with the help of the package manager [pip](https://pip.pypa.io/en/stable/)
 
 ```bash
 pip install -r requirements.txt
 ```
 
+5. Go into the src directory
+
+```bash
+cd src
+```
+
 6. Run the web server (locally)
 
 ```bash
-python main.py runserver
+python3 presentation/main.py runserver
 ```
 
 ## Implicit Actors

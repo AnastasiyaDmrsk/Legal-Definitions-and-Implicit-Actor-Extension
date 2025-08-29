@@ -34,7 +34,7 @@ _filter_options = [
     ("VerbLink Filter", VerbLinkFilter.__name__, VerbLinkFilter()),
     ("SynsetFilter", SynsetFilter.__name__, SynsetFilter()),
     # ("ChatGPT Filter", ChatGPTFilter.__name__, ChatGPTFilter()),
-    ("Similarity Filter", SimilarityFilter.__name__, SimilarityFilter(use_context=True, model="en_use_lg")),
+    ("Similarity Filter", SimilarityFilter.__name__, SimilarityFilter(use_context=True, model="en_use_md")),
     ("Candidate Text Occurrence Filter", CandidateTextOccurrenceFilter.__name__,
      CandidateTextOccurrenceFilter()),
     ("Proximity Filter", ProximityFilter.__name__, ProximityFilter()),
@@ -130,7 +130,8 @@ def create_implicit_subject_pipeline(
             ] if add_preamble_extraction else [
                 DefinitionCandidateExtractor()
             ]),
-        verbose=False
+        verbose=False,
+        fast=True
     )
 
 

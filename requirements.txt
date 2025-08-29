@@ -62,6 +62,7 @@ en_core_web_trf @ https://github.com/explosion/spacy-models/releases/download/en
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 en_core_web_lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.1/en_core_web_lg-3.7.1-py3-none-any.whl
 en_use_lg @ https://github.com/MartinoMensio/spacy-universal-sentence-encoder/releases/download/v0.4.6/en_use_lg-0.4.6.tar.gz#en_use_lg-0.4.6
+en_use_md @ https://github.com/MartinoMensio/spacy-universal-sentence-encoder/releases/download/v0.4.6/en_use_md-0.4.6.tar.gz
 scikit-learn
 evaluate
 yake
