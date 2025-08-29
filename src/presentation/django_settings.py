@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['bpmvm1.cit.tum.de', '127.0.0.1', 'localhost']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://bpmvm1.cit.tum.de',
+    'https://demos.bpm.cit.tum.de',
 ]
 
 # Application definition
